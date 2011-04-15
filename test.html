@@ -1,0 +1,20 @@
+<html>
+	<head>
+		<title>Orbital Elements Test</title>
+		<script type="text/javascript" src="jsorbits-solarsystem.js"></script>
+		<script type="text/javascript">
+			function buttonClicked(){
+				var d = new Date();//Date(1990, 3, 19);
+				solarSystemOrbits.distanceAndTrueAnomalyForBody(d, solarSystemOrbits.orbitalElementsSun);
+				//var e = solarSystemOrbits.epochFromDate(d);
+				//alert(e);
+				//var x = solarSystemOrbits.orbitalElementsSun.longitudeOfAscendingNode(-3542);
+				//alert("Hello, World");
+			}
+		</script>
+	</head>
+	<body>
+		<button type="button" onclick="buttonClicked();">Click Me</button>
+		<div id="output"/>
+	</body>
+</html>
