@@ -58,9 +58,9 @@ var solarSystemOrbits = {
 	},
 	orbitalElementsMercury : {
 		longitudeOfAscendingNode : function(epoch) {
-			return 48.3313 + 3.24587E-5 * epoch; 
+			return 48.3313 + 3.24587E-5 * epoch;
 		},
-		inclination              : function(epcoh) {
+		inclination              : function(epoch) {
 			return 7.0047 + 5.00E-8 * epoch;
 		},
 		argumentOfPerihelion     : function(epoch) {
@@ -71,7 +71,7 @@ var solarSystemOrbits = {
 			return 0.205635 + 5.59E-10 * epoch;
 		},
 		meanAnomaly              : function(epoch) {
-			return 168.6562 + 4.0923344368 * epoch; 
+			return 168.6562 + 4.0923344368 * epoch;
 		},
 		longitudePerturbations   : function(epoch) {
 			return 0.0;
@@ -84,18 +84,18 @@ var solarSystemOrbits = {
 		longitudeOfAscendingNode : function(epoch) {
 			return 76.6799 + 2.46590E-5 * epoch;
 		},
-		inclination              : function(epcoh) {
-			return 3.3946 + 2.75E-8 * epoch; 
+		inclination              : function(epoch) {
+			return 3.3946 + 2.75E-8 * epoch;
 		},
 		argumentOfPerihelion     : function(epoch) {
-			return 54.8910 + 1.38374E-5 * epoch; 
+			return 54.8910 + 1.38374E-5 * epoch;
 		},
 		semiMajorAxis            :0.723330,
 		eccentricity             : function(epoch) {
-			return 0.006773 - 1.302E-9 * epoch; 
+			return 0.006773 - 1.302E-9 * epoch;
 		},
 		meanAnomaly              : function(epoch) {
-			return 48.0052 + 1.6021302244 * epoch; 
+			return 48.0052 + 1.6021302244 * epoch;
 		},
 		longitudePerturbations   : function(epoch) {
 			return 0.0;
@@ -108,7 +108,7 @@ var solarSystemOrbits = {
 		longitudeOfAscendingNode : function(epoch) {
 			return 0.0;
 		},
-		inclination              : function(epcoh) {
+		inclination              : function(epoch) {
 			return 0.0;
 		},
 		argumentOfPerihelion     : function(epoch) {
@@ -132,11 +132,11 @@ var solarSystemOrbits = {
 		longitudeOfAscendingNode : function(epoch) {
 			return 49.5574 + 2.11081E-5 * epoch;
 		},
-		inclination              : function(epcoh) {
-			return 1.8497 - 1.78E-8 * epoch; 
+		inclination              : function(epoch) {
+			return 1.8497 - 1.78E-8 * epoch;
 		},
 		argumentOfPerihelion     : function(epoch) {
-			return 286.5016 + 2.92961E-5 * epoch; 
+			return 286.5016 + 2.92961E-5 * epoch;
 		},
 		semiMajorAxis            : 1.523688,
 		eccentricity             : function(epoch) {
@@ -156,18 +156,18 @@ var solarSystemOrbits = {
 		longitudeOfAscendingNode : function(epoch) {
 			return 100.4542 + 2.76854E-5 * epoch;
 		},
-		inclination              : function(epcoh) {
+		inclination              : function(epoch) {
 			return 1.3030 - 1.557E-7 * epoch;
 		},
 		argumentOfPerihelion     : function(epoch) {
 			return 273.8777 + 1.64505E-5 * epoch;
 		},
-		semiMajorAxis            : 5.20256, 
+		semiMajorAxis            : 5.20256,
 		eccentricity             : function(epoch) {
 			return 0.048498 + 4.469E-9 * epoch;
 		},
 		meanAnomaly              : function(epoch) {
-			return 19.8950 + 0.0830853001 * epoch; 
+			return 19.8950 + 0.0830853001 * epoch;
 		},
 		longitudePerturbations   : function(epoch) {
 			return 0.0;
@@ -188,8 +188,8 @@ var solarSystemOrbits = {
 
 		var E = this._eccentricAnomaly(M, e);
 
-		var x = a * this._cosd(E) - e;
-		var y = a * this._sind(E) * Math.sqrt(1.0 - e*e);
+		var x = a * (this._cosd(E) - e);
+		var y = a * (this._sind(E) * Math.sqrt(1.0 - e*e));
 
 		var r = Math.sqrt(x*x + y*y);
 		var v = this._atan2d(y, x);
