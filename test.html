@@ -3,30 +3,37 @@
 		<title>Orbital Elements Test</title>
 		<script type="text/javascript" src="jsorbits-solarsystem.js"></script>
 		<script type="text/javascript">
-			function buttonClicked(){
+			function updateStuff() {
 				var now = new Date();//Date(1990, 3, 19);
-				var objs = [solarSystemOrbits.orbitalElementsMercury
-					, solarSystemOrbits.orbitalElementsVenus
-					, solarSystemOrbits.orbitalElementsSun
-					, solarSystemOrbits.orbitalElementsMars
-					, solarSystemOrbits.orbitalElementsJupiter];
-				var s = "";
+				var objs = {'mercury' : solarSystemOrbits.orbitalElementsMercury
+					, 'venus' : solarSystemOrbits.orbitalElementsVenus
+					, 'sun' : solarSystemOrbits.orbitalElementsSun
+					, 'mars' : solarSystemOrbits.orbitalElementsMars
+					, 'jupiter' : solarSystemOrbits.orbitalElementsJupiter};
+				var s = "<table>";
 				for(var obj in objs){
-					var rv = solarSystemOrbits.distanceAndTrueAnomalyForBody(now, objs[obj]);
-					s = s + "R: " + rv.distance + ", V: " + rv.trueAnomaly + "<br/>";
+					var x = solarSystemOrbits.orbitalCoordinatesForBodyOnDate(now, objs[obj]);
+					s = s + "<tr><td>" + obj + "</td>";
+					s = s + "<td>r: " + x.spherical.r + "</td>";
+					s = s + "<td>lat: " + x.spherical.lat + "</td>";
+					s = s + "<td>lon: " + x.spherical.lon + "</td>";
+					s = s + "<td>x: " + x.rectangle.x + "</td>";
+					s = s + "<td>y: " + x.rectangle.y + "</td>";
+					s = s + "<td>z: " + x.rectangle.z + "</td>";
 				}
+				s = s + "</table>";
 				document.getElementById('output').innerHTML = s;
 
-				//solarSystemOrbits.distanceAndTrueAnomalyForBody(d, solarSystemOrbits.orbitalElementsMercury);
-				//var e = solarSystemOrbits.epochFromDate(d);
-				//alert(e);
-				//var x = solarSystemOrbits.orbitalElementsSun.longitudeOfAscendingNode(-3542);
-				//alert("Hello, World");
+				//setTimeout("updateStuff()", 3000);
+
 			}
-		</script>
+			function buttonClicked(){
+				updateStuff();
+			}
+</script>
 	</head>
 	<body>
 		<button type="button" onclick="buttonClicked();">Click Me</button>
 		<div id="output"/>
-	</body>
-</html>
+		</body>
+	</html>

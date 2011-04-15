@@ -3,12 +3,18 @@ var solarSystemOrbits = {
 		var E0 = M + (180.0/Math.PI) * e * this._sind(M) * (1.0 + e * this._cosd(M));
 		var E1 = E0 - (E0 - (180.0/Math.PI) * e * this._sind(E0) - M) / (1.0 - e * this._cosd(E0));
 		var D;
+		var I = 0;
 
 		do {
 			E0 = E1;
 			E1 = E0 - (E0 - (180.0/Math.PI) * e * this._sind(E0) - M) / (1 - e * this._cosd(E0));
 			D = Math.abs((E1 - E0));
-		} while(D > 0.0005);
+			I = I + 1;
+		} while(D > 0.0005 && I < 10);
+
+		if(I == 10 && D > 0.0005) {
+			alert("Integration failed, life sucks...");
+		}
 
 		return E1;
 
@@ -176,9 +182,9 @@ var solarSystemOrbits = {
 			return 0.0;
 		}
 	},
-
-	distanceAndTrueAnomalyForBody : function(date, body) {
+	orbitalCoordinatesForBodyOnDate: function(date, body) {
 		var epoch = this.epochFromDate(date);
+
 		var N = this._normalizeAngle(body.longitudeOfAscendingNode(epoch));
 		var i = this._normalizeAngle(body.inclination(epoch));
 		var w = this._normalizeAngle(body.argumentOfPerihelion(epoch));
@@ -190,14 +196,31 @@ var solarSystemOrbits = {
 
 		var x = a * (this._cosd(E) - e);
 		var y = a * (this._sind(E) * Math.sqrt(1.0 - e*e));
+		var z = 0;
 
 		var r = Math.sqrt(x*x + y*y);
 		var v = this._atan2d(y, x);
 
-		var res = {distance : r, trueAnomaly : v}
+		x = r * (this._cosd(N) * this._cosd(v+w) - this._sind(N) * this._sind(v+w) * this._cosd(i));
+		y = r * (this._sind(N) * this._cosd(v+w) + this._cosd(N) * this._sind(v+w) * this._cosd(i));
+		z = r * this._sind(v+w) * this._sind(i);
 
+		// convert to spherical coordinates
+		r = Math.sqrt(x*x + y*y + z*z);
+
+		var lon = this._normalizeAngle(this._atan2d(y, x));
+		var lat = this._asind(z / r);
+		var res = {spherical : {r : r, lat : lat, lon : lon}, rectangle : {x : x, y : y, z : z}};
 		return res;
-	}
-
+	},
+	_perturbationsMj : function(epoch) {
+		return 0;      //this.orbitalElementsJupiter.meanAnomaly(epoch);
+	},
+	_perturbationsMs : function(epoch) {
+		return 0;      //this.orbitalElementsSaturn.meanAnomaly(epoch);
+	},
+	_perturbationsMu : function(epoch) {
+		return 0;      //this.orbitalElementsUranus.meanAnomaly(epoch);
+	},
 
 };
