@@ -1,0 +1,4 @@
+Attempt at a javascript implementation to compute the position of bodies in the solar system from orbital elements given a time variable. Based on the tutorial at http://stjarnhimlen.se/comp/tutorial.html 
+The only useful method so far is 'orbitalCoordinatesForBodyOnDate', which returns a dictionary object containing the spherical and rectangle heliocentric positions of the planets.
+
+
