@@ -50,15 +50,24 @@ var solarSystemOrbits = {
 		return (180.0 / Math.PI) * Math.atan2(y, x);
 	},
 	epochFromDate : function(date) {
-		var Y = date.getUTCFullYear();
-		var M = date.getUTCMonth() + 1;
-		var D = date.getUTCDate();
-		var h = date.getUTCHours();
-		var m = date.getUTCMinutes();
-		var s = date.getUTCSeconds();
+		var Y = date.getFullYear();
+		var M = date.getMonth() + 1;
+		var D = date.getDate();
+		var h = date.getHours();
+		var m = date.getMinutes();
+		var s = date.getSeconds();
+/*
+                var Y = date.getUTCFullYear();
+                var M = date.getUTCMonth() + 1;
+                var D = date.getUTCDate();
+                var h = date.getUTCHours();
+                var m = date.getUTCMinutes();
+                var s = date.getUTCSeconds();
+ */
 		var d = 367 * Y - this._truncate((7 * (Y + this._truncate(((M + 9) / 12)))) / 4) + this._truncate((275 * M) / 9) + D - 730530;
 		d = d + ((h + (m / 60.0) + (s / 3600.0)) / 24.0);
-		return d
+		//return -3543;
+		return d;
 
 
 	},
@@ -210,9 +219,92 @@ var solarSystemOrbits = {
 
 		var lon = this._normalizeAngle(this._atan2d(y, x));
 		var lat = this._asind(z / r);
-		var res = {spherical : {r : r, lat : lat, lon : lon}, rectangle : {x : x, y : y, z : z}};
+		var res = {elements : { N : N, i : i, w : w, a : a, e : e, M : M}, spherical : {r : r, lat : lat, lon : lon}, rectangle : {x : x, y : y, z : z}, epoch : epoch, date : date};
 		return res;
 	},
+
+	convertToGeocentricCoordinates : function(coordinates){
+		var xg;
+		var yg;
+		var zg;
+		var oblecl = 23.4393 - 3.563E-7 * coordinates.epoch;
+
+		if(coordinates.rectangle.z == 0) {
+			xg = coordinates.rectangle.x;
+			yg = coordinates.rectangle.y;
+			zg = coordinates.rectangle.z;
+		} else {
+			var x = this.orbitalCoordinatesForBodyOnDate(coordinates.date, this.orbitalElementsSun);
+			xg = x.rectangle.x + coordinates.rectangle.x;
+			yg = x.rectangle.y + coordinates.rectangle.y;
+			zg = x.rectangle.z + coordinates.rectangle.z;
+		}
+
+		var xe = xg;
+		var ye = yg * this._cosd(oblecl) - zg * this._sind(oblecl);
+		var ze = yg * this._sind(oblecl) + zg * this._cosd(oblecl);
+
+		r = Math.sqrt(xe*xe + ye*ye + ze*ze);
+		var lon = this._normalizeAngle(this._atan2d(ye, xe));
+		var lat = this._asind(ze / r);
+		var res = {elements :
+			   { N : coordinates.elements.N
+			     , i : coordinates.elements.i
+			     , w : coordinates.elements.w
+			     , a : coordinates.elements.a
+			     , e : coordinates.elements.e
+			     , M : coordinates.elements.M}
+			   , spherical :
+			   {r : r
+			    , lat : lat
+			    , lon : lon}, rectangle :
+			   {x : xe
+			    , y : ye
+			    , z : ze}
+			   , epoch : coordinates.epoch
+			   , date : coordinates.date};
+		return res;
+	},
+	siderealTimeHourAngleAltitudeAndAzimuth : function(coordinates, geoLat, geoLon) {
+		var L = coordinates.elements.M + coordinates.elements.w;
+		var gmst0 = this._normalizeAngle(L) / 15 + 12;
+		var ut    = coordinates.date.getUTCHours() + (coordinates.date.getUTCMinutes() / 60.0);
+		var sidtime = gmst0 + ut + geoLon / 15;
+
+		if(sidtime < 0) sidtime = sidtime + 24;
+		if(sidtime > 24) sidtime = sidtime - 24;
+
+		var ha = (sidtime * 15) - coordinates.spherical.lon;
+
+		var x = this._cosd(ha) * this._cosd(coordinates.spherical.lat);
+		var y = this._sind(ha) * this._cosd(coordinates.spherical.lat);
+		var z = this._sind(coordinates.spherical.lat);
+
+		var xh = x * this._sind(geoLat) - z * this._cosd(geoLat);
+		var yh = y;
+		var zh = x * this._cosd(geoLat) + z * this._sind(geoLat);
+
+		var azimuth  = this._atan2d(yh, xh) + 180;
+		var altitude = this._atan2d(zh, Math.sqrt(xh*xh + yh*yh));
+
+		var res = {elements :
+			   { N : coordinates.elements.N
+			     , i : coordinates.elements.i
+			     , w : coordinates.elements.w
+			     , a : coordinates.elements.a
+			     , e : coordinates.elements.e
+			     , M : coordinates.elements.M}
+			   , gmst0 : gmst0
+			   , ut : ut
+			   , ha : ha
+			   , sidtime : sidtime
+			   , altitude : altitude
+			   , azimuth : azimuth
+			   , epoch : coordinates.epoch
+			   , date : coordinates.date};
+		return res;
+	},
+
 	_perturbationsMj : function(epoch) {
 		return 0;      //this.orbitalElementsJupiter.meanAnomaly(epoch);
 	},
@@ -222,5 +314,4 @@ var solarSystemOrbits = {
 	_perturbationsMu : function(epoch) {
 		return 0;      //this.orbitalElementsUranus.meanAnomaly(epoch);
 	},
-
 };

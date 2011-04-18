@@ -4,7 +4,7 @@
 		<script type="text/javascript" src="jsorbits-solarsystem.js"></script>
 		<script type="text/javascript">
 			function updateStuff() {
-				var now = new Date();//Date(1990, 3, 19);
+				var now = new Date();
 				var objs = {'mercury' : solarSystemOrbits.orbitalElementsMercury
 					, 'venus' : solarSystemOrbits.orbitalElementsVenus
 					, 'sun' : solarSystemOrbits.orbitalElementsSun
@@ -12,19 +12,21 @@
 					, 'jupiter' : solarSystemOrbits.orbitalElementsJupiter};
 				var s = "<table>";
 				for(var obj in objs){
-					var x = solarSystemOrbits.orbitalCoordinatesForBodyOnDate(now, objs[obj]);
+					var x  = solarSystemOrbits.orbitalCoordinatesForBodyOnDate(now, objs[obj]);
+                                        var xp = solarSystemOrbits.convertToGeocentricCoordinates(x);
+                                        var rp = solarSystemOrbits.siderealTimeHourAngleAltitudeAndAzimuth(xp, 33.47389 , -117.13972);
 					s = s + "<tr><td>" + obj + "</td>";
-					s = s + "<td>r: " + x.spherical.r + "</td>";
-					s = s + "<td>lat: " + x.spherical.lat + "</td>";
-					s = s + "<td>lon: " + x.spherical.lon + "</td>";
-					s = s + "<td>x: " + x.rectangle.x + "</td>";
-					s = s + "<td>y: " + x.rectangle.y + "</td>";
-					s = s + "<td>z: " + x.rectangle.z + "</td>";
+					s = s + "<td>Altitude: " + rp.altitude + "</td>";
+                                        s = s + "<td>Azimuth: " + rp.azimuth + "</td>";
+                                        s = s + "<td>HA: " + rp.ha + "</td>";
+                                        s = s + "<td>SIDTIME: " + rp.sidtime + "</td>";
+                                        s = s + "<td>GMST: " + rp.gmst0 + "</td>";
 				}
 				s = s + "</table>";
+
 				document.getElementById('output').innerHTML = s;
 
-				//setTimeout("updateStuff()", 3000);
+				setTimeout("updateStuff()", 2000);
 
 			}
 			function buttonClicked(){
