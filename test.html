@@ -10,27 +10,50 @@
 					, 'sun' : solarSystemOrbits.orbitalElementsSun
 					, 'mars' : solarSystemOrbits.orbitalElementsMars
 					, 'jupiter' : solarSystemOrbits.orbitalElementsJupiter};
-				var s = "<table>";
+				var s = "";
 				for(var obj in objs){
 					var x  = solarSystemOrbits.orbitalCoordinatesForBodyOnDate(now, objs[obj]);
                                         var xp = solarSystemOrbits.convertToGeocentricCoordinates(x);
                                         var rp = solarSystemOrbits.siderealTimeHourAngleAltitudeAndAzimuth(xp, 33.47389 , -117.13972);
-					s = s + "<tr><td>" + obj + "</td>";
-					s = s + "<td>Altitude: " + rp.altitude + "</td>";
-                                        s = s + "<td>Azimuth: " + rp.azimuth + "</td>";
-                                        s = s + "<td>HA: " + rp.ha + "</td>";
-                                        s = s + "<td>SIDTIME: " + rp.sidtime + "</td>";
-                                        s = s + "<td>GMST: " + rp.gmst0 + "</td>";
+
+                                        s = s + printCoords(obj, rp);
 				}
-				s = s + "</table>";
 
 				document.getElementById('output').innerHTML = s;
 
 				setTimeout("updateStuff()", 2000);
 
 			}
+                        function printCoords(name, coords){
+                            var strn =  "<h2>" + name + "</h2><table>";
+                            strn = strn + "<tr><td>N</td><td>" + coords.elements.N + "</td></tr>";
+                            strn = strn + "<tr><td>i</td><td>" + coords.elements.i + "</td></tr>";
+                            strn = strn + "<tr><td>w</td><td>" + coords.elements.w + "</td></tr>";
+                            strn = strn + "<tr><td>a</td><td>" + coords.elements.a + "</td></tr>";
+                            strn = strn + "<tr><td>e</td><td>" + coords.elements.e + "</td></tr>";
+                            strn = strn + "<tr><td>M</td><td>" + coords.elements.M + "</td></tr>";
+                            strn = strn + "<tr><td colspan='2'>Spherical</td></tr>";
+                            strn = strn + "<tr><td>R</td><td>" + coords.spherical.r + "</td></tr>";
+                            strn = strn + "<tr><td>LAT</td><td>" + coords.spherical.lat + "</td></tr>";
+                            strn = strn + "<tr><td>LON</td><td>" + coords.spherical.lon + "</td></tr>";
+                            strn = strn + "<tr><td colspan='2'>Rectangle</td></tr>";
+                            strn = strn + "<tr><td>X</td><td>" + coords.rectangle.x + "</td></tr>";
+                            strn = strn + "<tr><td>Y</td><td>" + coords.rectangle.y + "</td></tr>";
+                            strn = strn + "<tr><td>Z</td><td>" + coords.rectangle.z + "</td></tr>";
+                            if(coords.altitude && coords.azimuth){
+                                strn = strn + "<tr><td>ALT</td><td>" + coords.altitude + "</td></tr>";
+                                strn = strn + "<tr><td>AZM</td><td>" + coords.azimuth  + "</td></tr>";
+                            }
+                            strn = strn + "</table>";
+                            return strn;
+                        }
 			function buttonClicked(){
-				updateStuff();
+				var now = new Date();
+
+				var x  = solarSystemOrbits.orbitalCoordinatesForBodyOnDate(now, solarSystemOrbits.orbitalElementsMercury);
+                                var xp = solarSystemOrbits.convertToGeocentricCoordinates(x);
+                                var rp = solarSystemOrbits.convertToTropocentricCoordinates(xp, 33.47389 , -117.13972);
+				//updateStuff();
 			}
 </script>
 	</head>
