@@ -1,64 +1,240 @@
 <html>
 	<head>
 		<title>Orbital Elements Test</title>
+
+                <style type="text/css">
+                    #body-name { font-weight: bold; font-family: "Trebuchet MS", "Sans-Serif"; font-size:16px;}
+                    p { font-weight: bold; font-family: "Trebuchet MS", "Sans-Serif"; font-size:14px;margin-bottom:0px;}
+                    #elements {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+                    #coordinates {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+                    #epoch {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+                    #date {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+                    #hour-angle {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+                </style>
+
 		<script type="text/javascript" src="jsorbits-solarsystem.js"></script>
+                <script type="text/javascript" src="jquery.min.js"></script>
 		<script type="text/javascript">
+                        var elementsArray = null;
+
 			function updateStuff() {
 				var now = new Date();
-				var objs = {'mercury' : solarSystemOrbits.orbitalElementsMercury
-					, 'venus' : solarSystemOrbits.orbitalElementsVenus
-					, 'sun' : solarSystemOrbits.orbitalElementsSun
-					, 'mars' : solarSystemOrbits.orbitalElementsMars
-					, 'jupiter' : solarSystemOrbits.orbitalElementsJupiter};
-				var s = "";
-				for(var obj in objs){
-					var x  = solarSystemOrbits.orbitalCoordinatesForBodyOnDate(now, objs[obj]);
-                                        var xp = solarSystemOrbits.convertToGeocentricCoordinates(x);
-                                        var rp = solarSystemOrbits.siderealTimeHourAngleAltitudeAndAzimuth(xp, 33.47389 , -117.13972);
+                                for(element in elementsArray){
+                                    var d = solarSystemOrbits.coordinatesForBodyAtTimeAndPlace(elementsArray[element], now, 33.47389, -117.13972);
+                                    var p = '#' + d.id;
 
-                                        s = s + printCoords(obj, rp);
-				}
+                                    var h = solarSystemOrbits.degreesToHoursMinutesSeconds(d.hourangle);
+                                    var hs = "" + h.hours + "h " + h.minutes + "m " + h.seconds + "s";
 
-				document.getElementById('output').innerHTML = s;
+                                    $(p + ' #body-name').html(d.id);
+                                    $(p + ' #hour-angle').html(hs);
+                                    $(p + ' #elements #element-N').html(d.elements.N);
+                                    $(p + ' #elements #element-i').html(d.elements.i);
+                                    $(p + ' #elements #element-w').html(d.elements.w);
+                                    $(p + ' #elements #element-a').html(d.elements.a);
+                                    $(p + ' #elements #element-e').html(d.elements.e);
+                                    $(p + ' #elements #element-M').html(d.elements.M);
 
-				setTimeout("updateStuff()", 2000);
+                                    $(p + ' #coordinates #spherical-r').html(d.coordinates.spherical.r);
+                                    //decl
+                                    h = solarSystemOrbits.degreesToDegreesMinutesSeconds(d.coordinates.spherical.latitude);
+                                    hs = "" + h.degrees + "° " + h.minutes + "' " + h.seconds + "'' ";
+                                    $(p + ' #coordinates #spherical-lat').html(hs);
+                                    //ra
+                                    h = solarSystemOrbits.degreesToHoursMinutesSeconds(d.coordinates.spherical.longitude);
+                                    hs = "" + h.hours + "h " + h.minutes + "m " + h.seconds + "s";
+                                    $(p + ' #coordinates #spherical-lon').html(hs);
+
+                                    $(p + ' #coordinates #rectangle-x').html(d.coordinates.rectangle.x);
+                                    $(p + ' #coordinates #rectangle-y').html(d.coordinates.rectangle.y);
+                                    $(p + ' #coordinates #rectangle-z').html(d.coordinates.rectangle.z);
+
+                                    h = solarSystemOrbits.degreesToDegreesMinutesSeconds(d.coordinates.horizontal.azimuth);
+                                    hs = "" + h.degrees + "° " + h.minutes + "' " + h.seconds + "'' ";
+                                    $(p + ' #coordinates #horz-azm').html(hs);
+
+                                    h = solarSystemOrbits.degreesToDegreesMinutesSeconds(d.coordinates.horizontal.altitude);
+                                    hs = "" + h.degrees + "° " + h.minutes + "' " + h.seconds + "'' ";
+                                    $(p + ' #coordinates #horz-alt').html(hs);
+
+                                    $(p + ' #epoch').html(d.epoch);
+                                    $(p + ' #date').html(d.date.toString());
+
+                                }
+
+				setTimeout("updateStuff()", 1000);
 
 			}
-                        function printCoords(name, coords){
-                            var strn =  "<h2>" + name + "</h2><table>";
-                            strn = strn + "<tr><td>N</td><td>" + coords.elements.N + "</td></tr>";
-                            strn = strn + "<tr><td>i</td><td>" + coords.elements.i + "</td></tr>";
-                            strn = strn + "<tr><td>w</td><td>" + coords.elements.w + "</td></tr>";
-                            strn = strn + "<tr><td>a</td><td>" + coords.elements.a + "</td></tr>";
-                            strn = strn + "<tr><td>e</td><td>" + coords.elements.e + "</td></tr>";
-                            strn = strn + "<tr><td>M</td><td>" + coords.elements.M + "</td></tr>";
-                            strn = strn + "<tr><td colspan='2'>Spherical</td></tr>";
-                            strn = strn + "<tr><td>R</td><td>" + coords.spherical.r + "</td></tr>";
-                            strn = strn + "<tr><td>LAT</td><td>" + coords.spherical.lat + "</td></tr>";
-                            strn = strn + "<tr><td>LON</td><td>" + coords.spherical.lon + "</td></tr>";
-                            strn = strn + "<tr><td colspan='2'>Rectangle</td></tr>";
-                            strn = strn + "<tr><td>X</td><td>" + coords.rectangle.x + "</td></tr>";
-                            strn = strn + "<tr><td>Y</td><td>" + coords.rectangle.y + "</td></tr>";
-                            strn = strn + "<tr><td>Z</td><td>" + coords.rectangle.z + "</td></tr>";
-                            if(coords.altitude && coords.azimuth){
-                                strn = strn + "<tr><td>ALT</td><td>" + coords.altitude + "</td></tr>";
-                                strn = strn + "<tr><td>AZM</td><td>" + coords.azimuth  + "</td></tr>";
-                            }
-                            strn = strn + "</table>";
-                            return strn;
-                        }
-			function buttonClicked(){
-				var now = new Date();
+                        $(function(){
+                                elementsArray = new Array();
+				elementsArray.push(solarSystemOrbits.orbitalElementsMercury);
+				elementsArray.push(solarSystemOrbits.orbitalElementsVenus);
+				elementsArray.push(solarSystemOrbits.orbitalElementsSun);
+				elementsArray.push(solarSystemOrbits.orbitalElementsMars);
+				elementsArray.push(solarSystemOrbits.orbitalElementsJupiter);
+       
+                                setTimeout("updateStuff();", 1000);
+                        });
 
-				var x  = solarSystemOrbits.orbitalCoordinatesForBodyOnDate(now, solarSystemOrbits.orbitalElementsMercury);
-                                var xp = solarSystemOrbits.convertToGeocentricCoordinates(x);
-                                var rp = solarSystemOrbits.convertToTropocentricCoordinates(xp, 33.47389 , -117.13972);
-				//updateStuff();
-			}
 </script>
 	</head>
 	<body>
-		<button type="button" onclick="buttonClicked();">Click Me</button>
-		<div id="output"/>
-		</body>
+		<div id="Mercury">
+                    <div id="body-name"></div>
+                    <div>HA: <span id="hour-angle"></span></div>
+                    <div id="elements"><p>Orbital Elements</p>
+                        <div>N: <span id="element-N"></span></div>
+                        <div>i: <span id="element-i"></span></div>
+                        <div>w: <span id="element-w"></span></div>
+                        <div>a: <span id="element-a"></span></div>
+                        <div>e: <span id="element-e"></span></div>
+                        <div>M: <span id="element-M"></span></div>
+                    </div>
+
+                    <div id="coordinates">
+                        <p>Spherical Coordinates</p>
+                        <div>r: <span id="spherical-r"></span></div>
+                        <div>Lat: <span id="spherical-lat"></span></div>
+                        <div>Lon: <span id="spherical-lon"></span></div>
+                        <p>Rectangular Coordinates</p>
+                        <div>x: <span id="rectangle-x"></span></div>
+                        <div>y: <span id="rectangle-y"></span></div>
+                        <div>z: <span id="rectangle-z"></span></div>
+                        <p>Horizontal Coordinates</p>
+                        <div>Azimuth: <span id="horz-azm"></span></div>
+                        <div>Altitude: <span id="horz-alt"></span></div>
+                    </div>
+
+                    <p>Time Variables</p>
+                    <div>Epoch: <span id="epoch"></span></div>
+                    <div>Date: <span id="date"></span></div>
+                </div>
+                <hr />
+
+		<div id="Venus">
+                    <div id="body-name"></div>
+                    <div>HA: <span id="hour-angle"></span></div>
+                    <div id="elements"><p>Orbital Elements</p>
+                        <div>N: <span id="element-N"></span></div>
+                        <div>i: <span id="element-i"></span></div>
+                        <div>w: <span id="element-w"></span></div>
+                        <div>a: <span id="element-a"></span></div>
+                        <div>e: <span id="element-e"></span></div>
+                        <div>M: <span id="element-M"></span></div>
+                    </div>
+
+                    <div id="coordinates">
+                        <p>Spherical Coordinates</p>
+                        <div>r: <span id="spherical-r"></span></div>
+                        <div>Lat: <span id="spherical-lat"></span></div>
+                        <div>Lon: <span id="spherical-lon"></span></div>
+                        <p>Rectangular Coordinates</p>
+                        <div>x: <span id="rectangle-x"></span></div>
+                        <div>y: <span id="rectangle-y"></span></div>
+                        <div>z: <span id="rectangle-z"></span></div>
+                        <p>Horizontal Coordinates</p>
+                        <div>Azimuth: <span id="horz-azm"></span></div>
+                        <div>Altitude: <span id="horz-alt"></span></div>
+                    </div>
+
+                    <p>Time Variables</p>
+                    <div>Epoch: <span id="epoch"></span></div>
+                    <div>Date: <span id="date"></span></div>
+                </div>
+                <hr />
+
+		<div id="Sun">
+                    <div id="body-name"></div>
+                    <div>HA: <span id="hour-angle"></span></div>
+                    <div id="elements"><p>Orbital Elements</p>
+                        <div>N: <span id="element-N"></span></div>
+                        <div>i: <span id="element-i"></span></div>
+                        <div>w: <span id="element-w"></span></div>
+                        <div>a: <span id="element-a"></span></div>
+                        <div>e: <span id="element-e"></span></div>
+                        <div>M: <span id="element-M"></span></div>
+                    </div>
+
+                    <div id="coordinates">
+                        <p>Spherical Coordinates</p>
+                        <div>r: <span id="spherical-r"></span></div>
+                        <div>Lat: <span id="spherical-lat"></span></div>
+                        <div>Lon: <span id="spherical-lon"></span></div>
+                        <p>Rectangular Coordinates</p>
+                        <div>x: <span id="rectangle-x"></span></div>
+                        <div>y: <span id="rectangle-y"></span></div>
+                        <div>z: <span id="rectangle-z"></span></div>
+                        <p>Horizontal Coordinates</p>
+                        <div>Azimuth: <span id="horz-azm"></span></div>
+                        <div>Altitude: <span id="horz-alt"></span></div>
+                    </div>
+                    <p>Time Variables</p>
+                    <div>Epoch: <span id="epoch"></span></div>
+                    <div>Date: <span id="date"></span></div>
+                </div>
+                <hr />
+
+		<div id="Mars">
+                    <div id="body-name"></div>
+                    <div>HA: <span id="hour-angle"></span></div>
+                    <div id="elements"><p>Orbital Elements</p>
+                        <div>N: <span id="element-N"></span></div>
+                        <div>i: <span id="element-i"></span></div>
+                        <div>w: <span id="element-w"></span></div>
+                        <div>a: <span id="element-a"></span></div>
+                        <div>e: <span id="element-e"></span></div>
+                        <div>M: <span id="element-M"></span></div>
+                    </div>
+
+                    <div id="coordinates">
+                        <p>Spherical Coordinates</p>
+                        <div>r: <span id="spherical-r"></span></div>
+                        <div>Lat: <span id="spherical-lat"></span></div>
+                        <div>Lon: <span id="spherical-lon"></span></div>
+                        <p>Rectangular Coordinates</p>
+                        <div>x: <span id="rectangle-x"></span></div>
+                        <div>y: <span id="rectangle-y"></span></div>
+                        <div>z: <span id="rectangle-z"></span></div>
+                        <p>Horizontal Coordinates</p>
+                        <div>Azimuth: <span id="horz-azm"></span></div>
+                        <div>Altitude: <span id="horz-alt"></span></div>
+                    </div>
+
+                    <p>Time Variables</p>
+                    <div>Epoch: <span id="epoch"></span></div>
+                    <div>Date: <span id="date"></span></div>
+                </div>
+                 <hr />
+		<div id="Jupiter">
+                    <div id="body-name"></div>
+                    <div>HA: <span id="hour-angle"></span></div>
+                    <div id="elements"><p>Orbital Elements</p>
+                        <div>N: <span id="element-N"></span></div>
+                        <div>i: <span id="element-i"></span></div>
+                        <div>w: <span id="element-w"></span></div>
+                        <div>a: <span id="element-a"></span></div>
+                        <div>e: <span id="element-e"></span></div>
+                        <div>M: <span id="element-M"></span></div>
+                    </div>
+
+                    <div id="coordinates">
+                        <p>Spherical Coordinates</p>
+                        <div>r: <span id="spherical-r"></span></div>
+                        <div>Lat: <span id="spherical-lat"></span></div>
+                        <div>Lon: <span id="spherical-lon"></span></div>
+                        <p>Rectangular Coordinates</p>
+                        <div>x: <span id="rectangle-x"></span></div>
+                        <div>y: <span id="rectangle-y"></span></div>
+                        <div>z: <span id="rectangle-z"></span></div>
+                        <p>Horizontal Coordinates</p>
+                        <div>Azimuth: <span id="horz-azm"></span></div>
+                        <div>Altitude: <span id="horz-alt"></span></div>
+                    </div>
+
+                    <p>Time Variables</p>
+                    <div>Epoch: <span id="epoch"></span></div>
+                    <div>Date: <span id="date"></span></div>
+                </div>
+                 <hr />
+        </body>
 	</html>
