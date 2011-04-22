@@ -388,15 +388,9 @@ var solarSystemOrbits = {
 		var r = Math.sqrt(x*x + y*y);
 		var v = this._atan2d(y, x);
 
-		var xp;
-		var yp;
-		var xq;
-		var yq;
-
 		x = r * (this._cosd(N) * this._cosd(v+w) - this._sind(N) * this._sind(v+w) * this._cosd(i));
 		y = r * (this._sind(N) * this._cosd(v+w) + this._cosd(N) * this._sind(v+w) * this._cosd(i));
 		z = r * this._sind(v+w) * this._sind(i);
-
 
 		var lon = this._normalizeAngle(this._atan2d(y, x));
 		var lat = this._asind(z / r);
