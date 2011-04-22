@@ -436,8 +436,8 @@ var solarSystemOrbits = {
 		var r    = Math.sqrt(x*x + y*y + z*z);
 		var ra   = this._normalizeAngle(this._atan2d(y, x));
 		var decl = this._asind(z / r);
-		c.hourangle = this._hourAngleDegrees(c, ra);
 
+		c.hourangle = this._hourAngleDegrees(c, ra);
 		c.coordinates.rectangle.x = x;
 		c.coordinates.rectangle.y = y;
 		c.coordinates.rectangle.z = z;
@@ -445,20 +445,32 @@ var solarSystemOrbits = {
 		c.coordinates.spherical.longitude = ra;
 		c.coordinates.spherical.latitude  = decl;
 
-		xx = this._cosd(c.hourangle) * this._cosd(decl);
-		yy = this._sind(c.hourangle) * this._cosd(decl);
+		var ha    = c.hourangle;
+		var ppar  = (8.794/3600) / r;
+		var gclat = geoLat - 0.1924 * this._sind(2.0 * geoLat);
+		var rho   = 0.99833 + 0.00167 * this._cosd(2.0 * geoLat);
+		var g     = this._normalizeAngle((this._atand( this._tand(gclat) / this._cosd(ha))));
+
+		var topRA   = ra  - ppar * rho * this._cosd(gclat) * this._sind(ha) / this._cosd(decl);
+		var topDecl = decl - ppar * rho * this._sind(gclat) * this._sind(g - decl) / this._sind(g);
+
+		ra   = this._normalizeAngle(topRA);
+		decl = topDecl;
+
+		xx = this._cosd(ha) * this._cosd(decl);
+		yy = this._sind(ha) * this._cosd(decl);
 		zz = this._sind(decl);
+
 		x = xx * this._sind(geoLat) - zz * this._cosd(geoLat);
 		y = yy;
 		z = xx * this._cosd(geoLat) + zz * this._sind(geoLat);
 
-		var ppar = (8.794/3600.0) / r
-		           var azm = this._atan2d(y, x) + 180.0;
-		var alt1 = this._atan2d(z, Math.sqrt(x*x + y*y));
-		var alt2 = alt1 - ppar * this._cosd(alt1);
+		var azm = this._atan2d(y, x) + 180.0;
+		var alt = this._atan2d(z, Math.sqrt(x*x + y*y));
 
 		azm = this._normalizeAngle(azm);
-		c.coordinates.horizontal = {azimuth : azm, altitude : alt2};
+		c.coordinates.horizontal = {azimuth : azm, altitude : alt};
+
 		return this._resultValue(c);
 	},
 	_perturbationsMj : function(epoch) {
