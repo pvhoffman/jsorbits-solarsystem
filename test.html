@@ -1,254 +1,202 @@
 <html>
-	<head>
-		<title>Orbital Elements Test</title>
+    <head>
+        <title>Orbital Elements Test</title>
 
-                <style type="text/css">
-                    body {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
-                    #body-name { font-weight: bold; font-family: "Trebuchet MS", "Sans-Serif"; font-size:16px;}
-                    p { font-weight: bold; font-family: "Trebuchet MS", "Sans-Serif"; font-size:14px;margin-bottom:0px;}
-                    #elements {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
-                    #coordinates {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
-                    #epoch {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
-                    #date {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
-                    #hour-angle {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
-                </style>
+        <style type="text/css">
+            body {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+            #body-name { font-weight: bold; font-family: "Trebuchet MS", "Sans-Serif"; font-size:16px;}
+            p { font-weight: bold; font-family: "Trebuchet MS", "Sans-Serif"; font-size:14px;margin-bottom:0px;}
+            #elements {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+            #coordinates {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+            #epoch {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+            #date {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+            #hour-angle {font-family: "Trebuchet MS", "Sans-Serif"; font-size:12px;}
+        </style>
 
-		<script type="text/javascript" src="jsorbits-solarsystem.js"></script>
-                <script type="text/javascript" src="jquery.min.js"></script>
-		<script type="text/javascript">
-                        var elementsArray = null;
+        <script type="text/javascript" src="jsorbits-solarsystem.js"></script>
+        <script type="text/javascript" src="jquery.min.js"></script>
+        <script type="text/javascript">
+            var elementsArray = null;
 
-			function updateStuff() {
-                                var localLatitude  = $('#geo-location-latitude').val();
-                                var localLongitude = $('#geo-location-longitude').val();
-                                var d = new Date();
+            function updateStuff() {
+                var localLatitude  = $('#geo-location-latitude').val();
+                var localLongitude = $('#geo-location-longitude').val();
+                var d = new Date();
 
-                                for(element in elementsArray){
-                                        var select = '#' + elementsArray[element].id;
-                                        var coords = elementsArray[element].coordinates(d, localLatitude, localLongitude);
+                for(element in elementsArray){
+                    var select = '#' + elementsArray[element].id;
+                    var coords = elementsArray[element].coordinates(d, localLatitude, localLongitude);
 
-                                        // hour angle
-                                        var hms = toHoursMinutesSeconds(toDegrees(coords.hourangle));
-                                        $(select + ' #hour-angle').html('Hour Angle: ' + hms.h + 'h ' + hms.m + 'm ' + hms.s + 's');
+                    // hour angle
+                    var hms = toHoursMinutesSeconds(toDegrees(coords.hourangle));
+                    $(select + ' #hour-angle').html('Hour Angle: ' + hms.h + 'h ' + hms.m + 'm ' + hms.s + 's');
 
-                                        // heliocentric x,y,z
-                                        $(select + ' #heliocentric-coordinates #heliocentrix-x').html('x: ' + coords.heliocentric.x);
-                                        $(select + ' #heliocentric-coordinates #heliocentrix-y').html('y: ' + coords.heliocentric.y);
-                                        $(select + ' #heliocentric-coordinates #heliocentrix-z').html('z: ' + coords.heliocentric.z);
+                    // heliocentric x,y,z
+                    $(select + ' #heliocentric-coordinates #heliocentrix-x').html('x: ' + coords.heliocentric.x);
+                    $(select + ' #heliocentric-coordinates #heliocentrix-y').html('y: ' + coords.heliocentric.y);
+                    $(select + ' #heliocentric-coordinates #heliocentrix-z').html('z: ' + coords.heliocentric.z);
 
-                                        // heliocentric spherical 
-                                        spherical =  solarSystemOrbits._rectangularToSpherical(coords.heliocentric.x, coords.heliocentric.y, coords.heliocentric.z);
-                                        spherical.ra = solarSystemOrbits._normalizeAngle(spherical.ra);
-                                        hms = toHoursMinutesSeconds(toDegrees(spherical.ra));
-                                        $(select + ' #heliocentric-coordinates #heliocentrix-r').html('r: ' + spherical.r);
-                                        $(select + ' #heliocentric-coordinates #heliocentrix-ra').html('RA: ' + hms.h + 'h ' + hms.m + 'm ' + hms.s + 's');
-                                        hms = toDegreesMinutesSeconds(toDegrees(spherical.decl))
-                                        $(select + ' #heliocentric-coordinates #heliocentrix-decl').html('DE: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
+                    // heliocentric spherical 
+                    spherical =  solarSystemOrbits._rectangularToSpherical(coords.heliocentric.x, coords.heliocentric.y, coords.heliocentric.z);
+                    spherical.ra = solarSystemOrbits._normalizeAngle(spherical.ra);
+                    hms = toHoursMinutesSeconds(toDegrees(spherical.ra));
+                    $(select + ' #heliocentric-coordinates #heliocentrix-r').html('r: ' + spherical.r);
+                    $(select + ' #heliocentric-coordinates #heliocentrix-ra').html('RA: ' + hms.h + 'h ' + hms.m + 'm ' + hms.s + 's');
+                    hms = toDegreesMinutesSeconds(toDegrees(spherical.decl))
+                        $(select + ' #heliocentric-coordinates #heliocentrix-decl').html('DE: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
 
-                                        //geocentric rectangle
-                                        $(select + ' #geocentric-coordinates #geocentric-x').html('x: ' + coords.geocentric.x);
-                                        $(select + ' #geocentric-coordinates #geocentric-y').html('y: ' + coords.geocentric.y);
-                                        $(select + ' #geocentric-coordinates #geocentric-z').html('z: ' + coords.geocentric.z);
+                    //geocentric rectangle
+                    $(select + ' #geocentric-coordinates #geocentric-x').html('x: ' + coords.geocentric.x);
+                    $(select + ' #geocentric-coordinates #geocentric-y').html('y: ' + coords.geocentric.y);
+                    $(select + ' #geocentric-coordinates #geocentric-z').html('z: ' + coords.geocentric.z);
 
-                                        // geocentric spherical 
-                                        spherical =  solarSystemOrbits._rectangularToSpherical(coords.geocentric.x, coords.geocentric.y, coords.geocentric.z);
-                                        spherical.ra = solarSystemOrbits._normalizeAngle(spherical.ra);
-                                        hms = toHoursMinutesSeconds(toDegrees(spherical.ra));
-                                        $(select + ' #geocentric-coordinates #geocentric-r').html('r: ' + spherical.r);
-                                        $(select + ' #geocentric-coordinates #geocentric-ra').html('RA: ' + hms.h + 'h ' + hms.m + 'm ' + hms.s + 's');
-                                        hms = toDegreesMinutesSeconds(toDegrees(spherical.decl))
-                                        $(select + ' #geocentric-coordinates #geocentric-decl').html('DE: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
+                    // geocentric spherical 
+                    spherical =  solarSystemOrbits._rectangularToSpherical(coords.geocentric.x, coords.geocentric.y, coords.geocentric.z);
+                    spherical.ra = solarSystemOrbits._normalizeAngle(spherical.ra);
+                    hms = toHoursMinutesSeconds(toDegrees(spherical.ra));
+                    $(select + ' #geocentric-coordinates #geocentric-r').html('r: ' + spherical.r);
+                    $(select + ' #geocentric-coordinates #geocentric-ra').html('RA: ' + hms.h + 'h ' + hms.m + 'm ' + hms.s + 's');
+                    hms = toDegreesMinutesSeconds(toDegrees(spherical.decl))
+                        $(select + ' #geocentric-coordinates #geocentric-decl').html('DE: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
 
-                                        //topocentric rectangle
-                                        $(select + ' #topocentric-coordinates #topocentric-x').html('x: ' + coords.topocentric.x);
-                                        $(select + ' #topocentric-coordinates #topocentric-y').html('y: ' + coords.topocentric.y);
-                                        $(select + ' #topocentric-coordinates #topocentric-z').html('z: ' + coords.topocentric.z);
+                    //topocentric rectangle
+                    $(select + ' #topocentric-coordinates #topocentric-x').html('x: ' + coords.topocentric.x);
+                    $(select + ' #topocentric-coordinates #topocentric-y').html('y: ' + coords.topocentric.y);
+                    $(select + ' #topocentric-coordinates #topocentric-z').html('z: ' + coords.topocentric.z);
 
-                                        // topocentric spherical 
-                                        spherical =  solarSystemOrbits._rectangularToSpherical(coords.topocentric.x, coords.topocentric.y, coords.topocentric.z);
-                                        spherical.ra = solarSystemOrbits._normalizeAngle(spherical.ra);
-                                        hms = toHoursMinutesSeconds(toDegrees(spherical.ra));
-                                        $(select + ' #topocentric-coordinates #topocentric-r').html('r: ' + spherical.r);
-                                        $(select + ' #topocentric-coordinates #topocentric-ra').html('RA: ' + hms.h + 'h ' + hms.m + 'm ' + hms.s + 's');
-                                        hms = toDegreesMinutesSeconds(toDegrees(spherical.decl))
-                                        $(select + ' #topocentric-coordinates #topocentric-decl').html('DE: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
-                                        
-                                        //topocentric horizontal
-                                        var horz = toHorizontal(coords.topocentric.x, coords.topocentric.y, coords.topocentric.z);
-                                        hms = toDegreesMinutesSeconds(toDegrees(horz.azimuth));
-                                        $(select + ' #topocentric-coordinates #topocentric-azm').html('Az: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
+                    // topocentric spherical 
+                    spherical =  solarSystemOrbits._rectangularToSpherical(coords.topocentric.x, coords.topocentric.y, coords.topocentric.z);
+                    spherical.ra = solarSystemOrbits._normalizeAngle(spherical.ra);
+                    hms = toHoursMinutesSeconds(toDegrees(spherical.ra));
+                    $(select + ' #topocentric-coordinates #topocentric-r').html('r: ' + spherical.r);
+                    $(select + ' #topocentric-coordinates #topocentric-ra').html('RA: ' + hms.h + 'h ' + hms.m + 'm ' + hms.s + 's');
+                    hms = toDegreesMinutesSeconds(toDegrees(spherical.decl))
+                        $(select + ' #topocentric-coordinates #topocentric-decl').html('DE: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
 
-                                        hms = toDegreesMinutesSeconds(toDegrees(horz.altitude));
-                                        $(select + ' #topocentric-coordinates #topocentric-alt').html('Alt: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
+                    //topocentric horizontal
+                    var horz = toHorizontal(coords.topocentric.x, coords.topocentric.y, coords.topocentric.z);
+                    hms = toDegreesMinutesSeconds(toDegrees(horz.azimuth));
+                    $(select + ' #topocentric-coordinates #topocentric-azm').html('Az: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
 
-                                }
-				setTimeout("updateStuff()", 1000);
-/*
-                                var localLatitude  = $('#geo-location-latitude').val();
-                                var localLongitude = $('#geo-location-longitude').val();
+                    hms = toDegreesMinutesSeconds(toDegrees(horz.altitude));
+                    $(select + ' #topocentric-coordinates #topocentric-alt').html('Alt: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
 
-                                //alert(localLatitude);
+                }
+                setTimeout("updateStuff()", 1000);
+            }
+function toHoursMinutesSeconds(d){
+    var hh = d / 15.0;
+    var mm = (Math.abs(hh) - Math.abs(truncate(hh))) * 60.0;
+    var ss = (mm - truncate(mm)) * 60.0;
+    hh = truncate(hh);
+    mm = truncate(mm);
+    return {'h' : hh, 'm' : mm, 's'  : ss};
+}
 
-				var now = new Date();
-                                for(element in elementsArray){
-                                    var d = solarSystemOrbits.coordinatesForBodyAtTimeAndPlace(elementsArray[element], now, localLatitude, localLongitude);
-                                    var p = '#' + d.id;
+function toDegreesMinutesSeconds(d){
+    var dd = truncate(d);
+    var mm = (Math.abs(d) - Math.abs(dd)) * 60.0;
+    var ss = (mm - truncate(mm)) * 60.0;
+    mm = truncate(mm);
+    return {'d' : dd, 'm' : mm, 's' : ss};
+}
 
-                                    var h = solarSystemOrbits.degreesToHoursMinutesSeconds(d.hourangle);
-                                    var hs = "" + h.hours + "h " + h.minutes + "m " + h.seconds + "s";
+function toDegrees(r){
+    return r * (180.0 / Math.PI);
+}
+function toHorizontal(x, y, z) {
+    var azm = Math.atan2(y, x) + Math.PI;
+    var azm = solarSystemOrbits._normalizeAngle(azm)
 
-                                    $(p + ' #body-name').html(d.id);
-                                    $(p + ' #hour-angle').html(hs);
-                                    $(p + ' #elements #element-N').html(d.elements.N);
-                                    $(p + ' #elements #element-i').html(d.elements.i);
-                                    $(p + ' #elements #element-w').html(d.elements.w);
-                                    $(p + ' #elements #element-a').html(d.elements.a);
-                                    $(p + ' #elements #element-e').html(d.elements.e);
-                                    $(p + ' #elements #element-M').html(d.elements.M);
+        var alt = Math.atan2(z, Math.sqrt(x*x + y*y))
+        var res = {'altitude' : alt, 'azimuth' : azm};
+    return res;
+}
+function truncate(f){
+    if(f < 0.0) 
+        return Math.ceil(f)
+            return Math.floor(f)
+}
 
-                                    $(p + ' #coordinates #spherical-r').html(d.coordinates.spherical.r);
-                                    //decl
-                                    h = solarSystemOrbits.degreesToDegreesMinutesSeconds(d.coordinates.spherical.latitude);
-                                    hs = "" + h.degrees + "° " + h.minutes + "' " + h.seconds + "'' ";
-                                    $(p + ' #coordinates #spherical-lat').html(hs);
-                                    //ra
-                                    h = solarSystemOrbits.degreesToHoursMinutesSeconds(d.coordinates.spherical.longitude);
-                                    hs = "" + h.hours + "h " + h.minutes + "m " + h.seconds + "s";
-                                    $(p + ' #coordinates #spherical-lon').html(hs);
+$(function(){
+        var d = new Date();
+        var barf =  solarSystemOrbits.orbitalElementsSun.coordinates(d, 33.49658, -117.08743);
 
-                                    $(p + ' #coordinates #rectangle-x').html(d.coordinates.rectangle.x);
-                                    $(p + ' #coordinates #rectangle-y').html(d.coordinates.rectangle.y);
-                                    $(p + ' #coordinates #rectangle-z').html(d.coordinates.rectangle.z);
+        var horz = toHorizontal(barf.topocentric.x, barf.topocentric.y, barf.topocentric.z);
 
-                                    h = solarSystemOrbits.degreesToDegreesMinutesSeconds(d.coordinates.horizontal.azimuth);
-                                    hs = "" + h.degrees + "° " + h.minutes + "' " + h.seconds + "'' ";
-                                    $(p + ' #coordinates #horz-azm').html(hs);
+        var azm = toDegrees(horz.azimuth);
+        var alt = toDegrees(horz.altitude);
 
-                                    h = solarSystemOrbits.degreesToDegreesMinutesSeconds(d.coordinates.horizontal.altitude);
-                                    hs = "" + h.degrees + "° " + h.minutes + "' " + h.seconds + "'' ";
-                                    $(p + ' #coordinates #horz-alt').html(hs);
+        var s = 'Azimuth: ' + azm + ', Altitude: ' + alt;
 
-                                    $(p + ' #epoch').html(d.epoch);
-                                    $(p + ' #date').html(d.date.toString());
+        elementsArray = new Array();
+        elementsArray.push(solarSystemOrbits.orbitalElementsMercury);
+        elementsArray.push(solarSystemOrbits.orbitalElementsVenus);
+        elementsArray.push(solarSystemOrbits.orbitalElementsSun);
+        elementsArray.push(solarSystemOrbits.orbitalElementsMars);
+        elementsArray.push(solarSystemOrbits.orbitalElementsJupiter);
+        elementsArray.push(solarSystemOrbits.orbitalElementsSaturn);
+        elementsArray.push(solarSystemOrbits.orbitalElementsUranus);
+        elementsArray.push(solarSystemOrbits.orbitalElementsNeptune);
 
-                                }
+        for(element in elementsArray){
+            var adiv = $(document.createElement('div')).attr('id', elementsArray[element].id); 
+            // name
+            $(document.createElement('div')).attr('id', 'body-name').html(elementsArray[element].id).appendTo(adiv);
+            // hour angle
+            $(document.createElement('div')).attr('id', 'hour-angle').appendTo(adiv);
+            // heliocentric coordinates
+            var hdiv = $(document.createElement('div')).attr('id', 'heliocentric-coordinates');
+            $(document.createElement('p')).html('Heliocentric Rectangular Coordinates').appendTo(hdiv);
+            $(document.createElement('div')).attr('id', 'heliocentrix-x').appendTo(hdiv);
+            $(document.createElement('div')).attr('id', 'heliocentrix-y').appendTo(hdiv);
+            $(document.createElement('div')).attr('id', 'heliocentrix-z').appendTo(hdiv);
 
-				setTimeout("updateStuff()", 1000);
-*/
-			}
-                        function toHoursMinutesSeconds(d){
-                                var hh = d / 15.0;
-                                var mm = (Math.abs(hh) - Math.abs(truncate(hh))) * 60.0;
-                                var ss = (mm - truncate(mm)) * 60.0;
-                                hh = truncate(hh);
-                                mm = truncate(mm);
-                                return {'h' : hh, 'm' : mm, 's'  : ss};
-                        }
+            $(document.createElement('p')).html('Heliocentric Spherical Coordinates').appendTo(hdiv);
+            $(document.createElement('div')).attr('id', 'heliocentrix-r').appendTo(hdiv);
+            $(document.createElement('div')).attr('id', 'heliocentrix-ra').appendTo(hdiv);
+            $(document.createElement('div')).attr('id', 'heliocentrix-decl').appendTo(hdiv);
+            $(hdiv).appendTo(adiv);
 
-                        function toDegreesMinutesSeconds(d){
-                            var dd = truncate(d);
-                            var mm = (Math.abs(d) - Math.abs(dd)) * 60.0;
-                            var ss = (mm - truncate(mm)) * 60.0;
-                            mm = truncate(mm);
-                            return {'d' : dd, 'm' : mm, 's' : ss};
-                        }
+            // geocentric coordinates
+            var gdiv = $(document.createElement('div')).attr('id', 'geocentric-coordinates');
+            $(document.createElement('p')).html('Geocentric Rectangular Coordinates').appendTo(gdiv);
+            $(document.createElement('div')).attr('id', 'geocentric-x').appendTo(gdiv);
+            $(document.createElement('div')).attr('id', 'geocentric-y').appendTo(gdiv);
+            $(document.createElement('div')).attr('id', 'geocentric-z').appendTo(gdiv);
 
-                        function toDegrees(r){
-                                return r * (180.0 / Math.PI);
-                        }
-                        function toHorizontal(x, y, z) {
-                            var azm = Math.atan2(y, x) + Math.PI;
-                            var azm = solarSystemOrbits._normalizeAngle(azm)
+            $(document.createElement('p')).html('Geocentric Spherical Coordinates').appendTo(gdiv);
+            $(document.createElement('div')).attr('id', 'geocentric-r').appendTo(gdiv);
+            $(document.createElement('div')).attr('id', 'geocentric-ra').appendTo(gdiv);
+            $(document.createElement('div')).attr('id', 'geocentric-decl').appendTo(gdiv);
+            $(gdiv).appendTo(adiv);
 
-                            var alt = Math.atan2(z, Math.sqrt(x*x + y*y))
-                            var res = {'altitude' : alt, 'azimuth' : azm};
-                            return res;
-                        }
-                        function truncate(f){
-                                if(f < 0.0) 
-                                        return Math.ceil(f)
-                                return Math.floor(f)
-                        }
+            //topocentric coordinates
+            var tdiv = $(document.createElement('div')).attr('id', 'topocentric-coordinates');
+            $(document.createElement('p')).html('Topocentric Rectangular Coordinates').appendTo(tdiv);
+            $(document.createElement('div')).attr('id', 'topocentric-x').appendTo(tdiv);
+            $(document.createElement('div')).attr('id', 'topocentric-y').appendTo(tdiv);
+            $(document.createElement('div')).attr('id', 'topocentric-z').appendTo(tdiv);
 
-                        $(function(){
-                                var d = new Date();
-                                var barf =  solarSystemOrbits.orbitalElementsSun.coordinates(d, 33.49658, -117.08743);
+            $(document.createElement('p')).html('Topocentric Spherical Coordinates').appendTo(tdiv);
+            $(document.createElement('div')).attr('id', 'topocentric-r').appendTo(tdiv);
+            $(document.createElement('div')).attr('id', 'topocentric-ra').appendTo(tdiv);
+            $(document.createElement('div')).attr('id', 'topocentric-decl').appendTo(tdiv);
 
-                                var horz = toHorizontal(barf.topocentric.x, barf.topocentric.y, barf.topocentric.z);
-                                
-                                var azm = toDegrees(horz.azimuth);
-                                var alt = toDegrees(horz.altitude);
+            $(document.createElement('p')).html('Topocentric Horizontal Coordinates').appendTo(tdiv);
+            $(document.createElement('div')).attr('id', 'topocentric-azm').appendTo(tdiv);
+            $(document.createElement('div')).attr('id', 'topocentric-alt').appendTo(tdiv);
 
-                                var s = 'Azimuth: ' + azm + ', Altitude: ' + alt;
-
-                                elementsArray = new Array();
-				elementsArray.push(solarSystemOrbits.orbitalElementsMercury);
-				elementsArray.push(solarSystemOrbits.orbitalElementsVenus);
-				elementsArray.push(solarSystemOrbits.orbitalElementsSun);
-				elementsArray.push(solarSystemOrbits.orbitalElementsMars);
-				elementsArray.push(solarSystemOrbits.orbitalElementsJupiter);
-				elementsArray.push(solarSystemOrbits.orbitalElementsSaturn);
-				elementsArray.push(solarSystemOrbits.orbitalElementsUranus);
-				elementsArray.push(solarSystemOrbits.orbitalElementsNeptune);
-
-                                for(element in elementsArray){
-                                       var adiv = $(document.createElement('div')).attr('id', elementsArray[element].id); 
-                                       // name
-                                       $(document.createElement('div')).attr('id', 'body-name').html(elementsArray[element].id).appendTo(adiv);
-                                       // hour angle
-                                       $(document.createElement('div')).attr('id', 'hour-angle').appendTo(adiv);
-                                       // heliocentric coordinates
-                                       var hdiv = $(document.createElement('div')).attr('id', 'heliocentric-coordinates');
-                                       $(document.createElement('p')).html('Heliocentric Rectangular Coordinates').appendTo(hdiv);
-                                       $(document.createElement('div')).attr('id', 'heliocentrix-x').appendTo(hdiv);
-                                       $(document.createElement('div')).attr('id', 'heliocentrix-y').appendTo(hdiv);
-                                       $(document.createElement('div')).attr('id', 'heliocentrix-z').appendTo(hdiv);
-
-                                       $(document.createElement('p')).html('Heliocentric Spherical Coordinates').appendTo(hdiv);
-                                       $(document.createElement('div')).attr('id', 'heliocentrix-r').appendTo(hdiv);
-                                       $(document.createElement('div')).attr('id', 'heliocentrix-ra').appendTo(hdiv);
-                                       $(document.createElement('div')).attr('id', 'heliocentrix-decl').appendTo(hdiv);
-                                       $(hdiv).appendTo(adiv);
-
-                                       // geocentric coordinates
-                                       var gdiv = $(document.createElement('div')).attr('id', 'geocentric-coordinates');
-                                       $(document.createElement('p')).html('Geocentric Rectangular Coordinates').appendTo(gdiv);
-                                       $(document.createElement('div')).attr('id', 'geocentric-x').appendTo(gdiv);
-                                       $(document.createElement('div')).attr('id', 'geocentric-y').appendTo(gdiv);
-                                       $(document.createElement('div')).attr('id', 'geocentric-z').appendTo(gdiv);
-
-                                       $(document.createElement('p')).html('Geocentric Spherical Coordinates').appendTo(gdiv);
-                                       $(document.createElement('div')).attr('id', 'geocentric-r').appendTo(gdiv);
-                                       $(document.createElement('div')).attr('id', 'geocentric-ra').appendTo(gdiv);
-                                       $(document.createElement('div')).attr('id', 'geocentric-decl').appendTo(gdiv);
-                                       $(gdiv).appendTo(adiv);
-
-                                       //topocentric coordinates
-                                       var tdiv = $(document.createElement('div')).attr('id', 'topocentric-coordinates');
-                                       $(document.createElement('p')).html('Topocentric Rectangular Coordinates').appendTo(tdiv);
-                                       $(document.createElement('div')).attr('id', 'topocentric-x').appendTo(tdiv);
-                                       $(document.createElement('div')).attr('id', 'topocentric-y').appendTo(tdiv);
-                                       $(document.createElement('div')).attr('id', 'topocentric-z').appendTo(tdiv);
-
-                                       $(document.createElement('p')).html('Topocentric Spherical Coordinates').appendTo(tdiv);
-                                       $(document.createElement('div')).attr('id', 'topocentric-r').appendTo(tdiv);
-                                       $(document.createElement('div')).attr('id', 'topocentric-ra').appendTo(tdiv);
-                                       $(document.createElement('div')).attr('id', 'topocentric-decl').appendTo(tdiv);
-
-                                       $(document.createElement('p')).html('Topocentric Horizontal Coordinates').appendTo(tdiv);
-                                       $(document.createElement('div')).attr('id', 'topocentric-azm').appendTo(tdiv);
-                                       $(document.createElement('div')).attr('id', 'topocentric-alt').appendTo(tdiv);
-
-                                       $(tdiv).appendTo(adiv);
-                                       $(document.createElement('hr')).appendTo(adiv)
-                                       $(adiv).appendTo($('#content'));
-                                }
-                                updateStuff();
-                        });
+            $(tdiv).appendTo(adiv);
+            $(document.createElement('hr')).appendTo(adiv)
+                $(adiv).appendTo($('#content'));
+        }
+        updateStuff();
+});
 
 </script>
-	</head>
-	<body>
+        </head>
+        <body>
             <label for="geo-location-latitude">Local Latitude</label>
             <input type="text" id="geo-location-latitude" value="33.49658"></input>
 
@@ -256,4 +204,4 @@
             <input type="text" id="geo-location-longitude" value="-117.08743"></input>
             <div id="content"></div>
         </body>
-	</html>
+    </html>
