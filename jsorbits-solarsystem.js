@@ -2,7 +2,6 @@
 //
 // Copyright (c) 2011, Paul V. Hoffman.
 // All rights reserved.
-//
 
 var solarSystemOrbits = {
 	_eccentricAnomaly : function(M, e) {
@@ -47,7 +46,7 @@ var solarSystemOrbits = {
 	},
 	_hourAngleDegrees : function (epoch, utchours, longitude, ra){ //coordinates, longitude) {
 		var s = this._sidtimeHours(epoch, utchours, longitude);
-                s = s * ((Math.PI * 2.0) / 24.0);
+		s = s * ((Math.PI * 2.0) / 24.0);
 		var r = s - ra;
 		r = this._normalizeAngle(r);
 		return r;
@@ -58,7 +57,7 @@ var solarSystemOrbits = {
 		var ra = 0.0;
 		var decl = 0.0;
 		if (Math.abs(x) < e &&  Math.abs(y) < e) {
-			decl = Math.atan2(z, math.sqrt(x*x + y*y));
+			decl = Math.atan2(z, Math.sqrt(x*x + y*y));
 		} else {
 			ra = Math.atan2(y, x);
 			decl = Math.asin(z / r);
@@ -138,11 +137,29 @@ var solarSystemOrbits = {
 			var par = 4.26345151167726e-05 / r;
 			return par;
 		},
+		magnitude : function(r, R, phaseangle) {
+			//log10 =  Math.log(arg) / Math.LN10;
+			var FV   =  phaseangle * (180.0/Math.PI);
+			var res  = -0.36 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.027 * FV + 2.2E-13 * Math.pow(FV, 6);
+			return res;
+		},
 		coordinates : function(date, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var epoch = self.epochFromDate(date);
 			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+		},
+		data : function(epoch, utchours, geoLat, geoLon) {
+			var self = solarSystemOrbits;
+			//var epoch    = self.epochFromDate(date);
+			//var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
+			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
+			var res = {
+				'coords' : c,
+				'info'   : e
+			};
+			return res;
 		}
 	},
 	orbitalElementsVenus : {
@@ -178,11 +195,28 @@ var solarSystemOrbits = {
 			var par = 4.26345151167726e-05 / r;
 			return par;
 		},
+		magnitude : function(r, R, phaseangle) {
+			var FV  =  phaseangle * (180.0/Math.PI);
+			var res = -4.34 + 5 * (Math.log(r*R) / Math.LN10) + 0.013 * FV + 4.2E-7  * Math.pow(FV, 3);
+			return res;
+		},
 		coordinates : function(date, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var epoch = self.epochFromDate(date);
 			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+		},
+		data : function(epoch, utchours, geoLat, geoLon) {
+			var self = solarSystemOrbits;
+			//var epoch    = self.epochFromDate(date);
+			//var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
+			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
+			var res = {
+				'coords' : c,
+				'info'   : e
+			};
+			return res;
 		}
 	},
 	orbitalElementsSun : {
@@ -218,11 +252,98 @@ var solarSystemOrbits = {
 			var par = 4.26345151167726e-05 / r;
 			return par;
 		},
+		magnitude : function(r, R, FV) {
+			return 0.0;
+		},
 		coordinates : function(date, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var epoch = self.epochFromDate(date);
 			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+		},
+		data : function(epoch, utchours, geoLat, geoLon) {
+			var self = solarSystemOrbits;
+			var N = self._normalizeAngle(this.longitudeOfAscendingNode(epoch));
+			var i = self._normalizeAngle(this.inclination(epoch));
+			var w = self._normalizeAngle(this.argumentOfPerihelion(epoch));
+			var a = this.semiMajorAxis(epoch);
+			var e = this.eccentricity(epoch);
+			var M = self._normalizeAngle(this.meanAnomaly(epoch));
+			var E = self._eccentricAnomaly(M, e);
+			var x = a * (Math.cos(E) - e);
+			var y = a * (Math.sin(E) * Math.sqrt(1.0 - e*e));
+			var z = 0;
+			var r = Math.sqrt(x*x + y*y);
+			var v = self._normalizeAngle(Math.atan2(y, x));
+
+			x = r * (Math.cos(N) * Math.cos(v+w) - Math.sin(N) * Math.sin(v+w) * Math.cos(i));
+			y = r * (Math.sin(N) * Math.cos(v+w) + Math.cos(N) * Math.sin(v+w) * Math.cos(i));
+			z = r * Math.sin(v+w) * Math.sin(i);
+
+			var lon = self._normalizeAngle(Math.atan2(y, x));
+			var lat = self._normalizeAngle(Math.asin(z / r));
+
+			var heliocentric = {
+				'x' : r * Math.cos(lon) * Math.cos(lat),
+				'y' : r * Math.sin(lon) * Math.cos(lat),
+				'z' : r * Math.sin(lat)
+			};
+
+			var oblecl = 0.4090929593627069 - 6.218608124855796e-09 * epoch;
+
+			var geocentric = {
+				'x' : heliocentric.x,
+				'y' : heliocentric.y * Math.cos(oblecl) - heliocentric.z * Math.sin(oblecl),
+				'z' : heliocentric.y * Math.sin(oblecl) + heliocentric.z * Math.cos(oblecl)
+			};
+
+			var spherical = self._rectangularToSpherical(geocentric.x, geocentric.y, geocentric.z);
+			spherical.ra  = self._normalizeAngle(spherical.ra);
+			var ha = self._hourAngleDegrees(epoch, utchours, geoLon, spherical.ra);
+			var par = this.parallax(spherical.r);
+			// latitude adjustment
+			var gclat = geoLat - 0.1924 * Math.sin((2.0*geoLat) * (Math.PI / 180.0));
+			gclat = gclat * (Math.PI / 180.0);
+			// distance from the center of the earth
+			var rho = 0.99833 + 0.00167 * Math.cos((2.0*geoLat) * (Math.PI / 180.0));
+			// aux angle
+			var g = Math.atan( Math.tan(gclat) / Math.cos(ha));
+			g = self._normalizeAngle(g);
+			// RA adjustment
+			var topRA   = par * rho * Math.cos(gclat) * Math.sin(ha) / Math.cos(spherical.decl);
+			// DECL adjustment
+			var topDecl = par * rho * Math.sin(gclat) * Math.sin(g - spherical.decl) / Math.sin(g);
+			// adjust the geocentric spherical coordinates to topocentric
+			spherical.ra = spherical.ra - topRA;
+			spherical.decl = spherical.decl - topDecl;
+			spherical.ra = self._normalizeAngle(spherical.ra);
+			// convert to rectnagle.
+			// x axis points to the celestial equator in the south
+			x = Math.cos(ha) * Math.cos(spherical.decl);
+			// y axis points to the horizon in the west
+			y = Math.sin(ha) * Math.cos(spherical.decl);
+			// z axis points to the north celestial pole
+			z = Math.sin(spherical.decl);
+			// rotate alon the y axis (pointing east/west) so z points at the zenith
+			var topocentric = {
+				'x' : x * Math.sin(gclat) - z * Math.cos(gclat),
+				'y' : y,
+				'z' : x * Math.cos(gclat) + z * Math.sin(gclat)
+			};
+
+			var c = {
+				'heliocentric' : heliocentric,
+				'geocentric'   : geocentric,
+				'topocentric'  : topocentric,
+				'hourangle'    : ha
+			};
+			var e = self._planetaryElongationPhaseAngleMagnitudeZero(c, epoch);
+			var res = {
+				'coords' : c,
+				'info'   : e
+			};
+			return res;
+
 		}
 	},
 	orbitalElementsMars : {
@@ -258,11 +379,26 @@ var solarSystemOrbits = {
 			var par = 4.26345151167726e-05 / r;
 			return par;
 		},
+		magnitude : function(r, R, phaseangle) {
+			var FV  =  phaseangle * (180.0/Math.PI);
+			var res = -1.51 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.016 * FV;
+			return res;
+		},
 		coordinates : function(date, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var epoch = self.epochFromDate(date);
 			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+		},
+		data : function(epoch, utchours, geoLat, geoLon) {
+			var self = solarSystemOrbits;
+			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
+			var res = {
+				'coords' : c,
+				'info'   : e
+			};
+			return res;
 		}
 	},
 	orbitalElementsJupiter : {
@@ -309,11 +445,26 @@ var solarSystemOrbits = {
 			var par = 4.26345151167726e-05 / r;
 			return par;
 		},
+		magnitude : function(r, R, phaseangle) {
+			var FV  =  phaseangle * (180.0/Math.PI);
+			var res = -9.25 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.014 * FV;
+			return res;
+		},
 		coordinates : function(date, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var epoch = self.epochFromDate(date);
 			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+		},
+		data : function(epoch, utchours, geoLat, geoLon) {
+			var self = solarSystemOrbits;
+			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
+			var res = {
+				'coords' : c,
+				'info'   : e
+			};
+			return res;
 		}
 	},
 	orbitalElementsSaturn : {
@@ -365,11 +516,27 @@ var solarSystemOrbits = {
 			var par = 4.26345151167726e-05 / r;
 			return par;
 		},
+		magnitude : function(r, R, phaseangle) {
+			var FV  = phaseangle * (180.0/Math.PI);
+			var ring_magn = 0.0;
+			var res = -9.0  + 5.0 *(Math.log(r*R) / Math.LN10) + 0.044 * FV + ring_magn;
+			return res;
+		},
 		coordinates : function(date, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var epoch = self.epochFromDate(date);
 			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+		},
+		data : function(epoch, utchours, geoLat, geoLon) {
+			var self = solarSystemOrbits;
+			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
+			var res = {
+				'coords' : c,
+				'info'   : e
+			};
+			return res;
 		}
 
 	},
@@ -414,11 +581,26 @@ var solarSystemOrbits = {
 			var par = 4.26345151167726e-05 / r;
 			return par;
 		},
+		magnitude : function(r, R, phaseangle) {
+			var FV  = phaseangle * (180.0/Math.PI);
+			var res = -7.15 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.001 * FV;
+			return res;
+		},
 		coordinates : function(date, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var epoch = self.epochFromDate(date);
 			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+		},
+		data : function(epoch, utchours, geoLat, geoLon) {
+			var self = solarSystemOrbits;
+			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
+			var res = {
+				'coords' : c,
+				'info'   : e
+			};
+			return res;
 		}
 	},
 	orbitalElementsNeptune : {
@@ -454,11 +636,26 @@ var solarSystemOrbits = {
 			var par = 4.26345151167726e-05 / r;
 			return par;
 		},
+		magnitude : function(r, R, phaseangle) {
+			var FV  = phaseangle * (180.0/Math.PI);
+			var res = -6.90 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.001 * FV;
+			return res;
+		},
 		coordinates : function(date, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var epoch = self.epochFromDate(date);
 			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+		},
+		data : function(epoch, utchours, geoLat, geoLon) {
+			var self = solarSystemOrbits;
+			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
+			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
+			var res = {
+				'coords' : c,
+				'info'   : e
+			};
+			return res;
 		}
 	},
 	orbitalElementsEarthMoon : {
@@ -580,15 +777,101 @@ var solarSystemOrbits = {
 			var par = Math.asin( 1.0 / r );
 			return par;
 		},
+		magnitude : function(r, R, FV) {
+			return 0.0;
+		},
 		coordinates : function(date, geoLat, geoLon) {
 			var self = solarSystemOrbits;
-			//var epoch = -3543; 
+			//var epoch = -3543;
 			var epoch = self.epochFromDate(date);
 			//var utchours = 0.0;
-			//var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 1440.0 + date.getUTCSeconds() / 86400.0;
+			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
 			//return self._planetaryCoordinates(-3543.0, this, 60.0, 15.0, 0);
+		},
+		data : function(epoch, utchours, geoLat, geoLon) {
+			var self = solarSystemOrbits;
+			var N = self._normalizeAngle(this.longitudeOfAscendingNode(epoch));
+			var i = self._normalizeAngle(this.inclination(epoch));
+			var w = self._normalizeAngle(this.argumentOfPerihelion(epoch));
+			var a = this.semiMajorAxis(epoch);
+			var e = this.eccentricity(epoch);
+			var M = self._normalizeAngle(this.meanAnomaly(epoch));
+			var E = self._eccentricAnomaly(M, e);
+			var x = a * (Math.cos(E) - e);
+			var y = a * (Math.sin(E) * Math.sqrt(1.0 - e*e));
+			var z = 0;
+			var r = Math.sqrt(x*x + y*y);
+			var v = self._normalizeAngle(Math.atan2(y, x));
+
+			x = r * (Math.cos(N) * Math.cos(v+w) - Math.sin(N) * Math.sin(v+w) * Math.cos(i));
+			y = r * (Math.sin(N) * Math.cos(v+w) + Math.cos(N) * Math.sin(v+w) * Math.cos(i));
+			z = r * Math.sin(v+w) * Math.sin(i);
+
+			var lon = self._normalizeAngle(Math.atan2(y, x));
+			var lat = self._normalizeAngle(Math.asin(z / r));
+
+			var heliocentric = {
+				'x' : r * Math.cos(lon) * Math.cos(lat),
+				'y' : r * Math.sin(lon) * Math.cos(lat),
+				'z' : r * Math.sin(lat)
+			};
+
+			var oblecl = 0.4090929593627069 - 6.218608124855796e-09 * epoch;
+
+			var geocentric = {
+				'x' : heliocentric.x,
+				'y' : heliocentric.y * Math.cos(oblecl) - heliocentric.z * Math.sin(oblecl),
+				'z' : heliocentric.y * Math.sin(oblecl) + heliocentric.z * Math.cos(oblecl)
+			};
+
+			var spherical = self._rectangularToSpherical(geocentric.x, geocentric.y, geocentric.z);
+			spherical.ra  = self._normalizeAngle(spherical.ra);
+			var ha = self._hourAngleDegrees(epoch, utchours, geoLon, spherical.ra);
+			var par = this.parallax(spherical.r);
+			// latitude adjustment
+			var gclat = geoLat - 0.1924 * Math.sin((2.0*geoLat) * (Math.PI / 180.0));
+			gclat = gclat * (Math.PI / 180.0);
+			// distance from the center of the earth
+			var rho = 0.99833 + 0.00167 * Math.cos((2.0*geoLat) * (Math.PI / 180.0));
+			// aux angle
+			var g = Math.atan( Math.tan(gclat) / Math.cos(ha));
+			g = self._normalizeAngle(g);
+			// RA adjustment
+			var topRA   = par * rho * Math.cos(gclat) * Math.sin(ha) / Math.cos(spherical.decl);
+			// DECL adjustment
+			var topDecl = par * rho * Math.sin(gclat) * Math.sin(g - spherical.decl) / Math.sin(g);
+			// adjust the geocentric spherical coordinates to topocentric
+			spherical.ra = spherical.ra - topRA;
+			spherical.decl = spherical.decl - topDecl;
+			spherical.ra = self._normalizeAngle(spherical.ra);
+			// convert to rectnagle.
+			// x axis points to the celestial equator in the south
+			x = Math.cos(ha) * Math.cos(spherical.decl);
+			// y axis points to the horizon in the west
+			y = Math.sin(ha) * Math.cos(spherical.decl);
+			// z axis points to the north celestial pole
+			z = Math.sin(spherical.decl);
+			// rotate alon the y axis (pointing east/west) so z points at the zenith
+			var topocentric = {
+				'x' : x * Math.sin(gclat) - z * Math.cos(gclat),
+				'y' : y,
+				'z' : x * Math.cos(gclat) + z * Math.sin(gclat)
+			};
+
+			var c = {
+				'heliocentric' : heliocentric,
+				'geocentric'   : geocentric,
+				'topocentric'  : topocentric,
+				'hourangle'    : ha
+			};
+			var e = self._lunarElongationPhaseAngleMagnitude(this, c, epoch);
+			var res = {
+				'coords' : c,
+				'info'   : e
+			};
+			return res;
+
 		}
 	},
 	_planetaryCoordinates : function(epoch, body, geoLat, geoLon, utchours) {
@@ -625,8 +908,8 @@ var solarSystemOrbits = {
 		lat = lat + perturbationsLat;
 		r   = r + perturbationsDist;
 
-                lat = this._normalizeAngle(lat);
-                lon = this._normalizeAngle(lon);
+		lat = this._normalizeAngle(lat);
+		lon = this._normalizeAngle(lon);
 
 		var hx = r * Math.cos(lon) * Math.cos(lat);
 		var hy = r * Math.sin(lon) * Math.cos(lat);
@@ -637,12 +920,10 @@ var solarSystemOrbits = {
 		z = hz;
 
 		// now get the geocentric
-		if(body.id != 'Sun' && body.id != 'Moon-Earth') {
-                        var sun = this._planetaryCoordinates(epoch, this.orbitalElementsSun, geoLat, geoLon, utchours);
-			x = sun.heliocentric.x + x;
-			y = sun.heliocentric.y + y;
-			z = sun.heliocentric.z + z;
-		}
+		var sun = this.orbitalElementsSun.data(epoch, utchours, geoLat, geoLon);
+		x = sun.coords.heliocentric.x + x;
+		y = sun.coords.heliocentric.y + y;
+		z = sun.coords.heliocentric.z + z;
 
 		var oblecl = 0.4090929593627069 - 6.218608124855796e-09 * epoch;
 
@@ -653,7 +934,6 @@ var solarSystemOrbits = {
 		// now get the topocentric
 		var spherical =  this._rectangularToSpherical(gx, gy, gz);
 		spherical.ra = this._normalizeAngle(spherical.ra);
-
 		var ha = this._hourAngleDegrees(epoch, utchours, geoLon, spherical.ra);
 		// parallax
 		var par = body.parallax(spherical.r);
@@ -689,9 +969,65 @@ var solarSystemOrbits = {
 			'heliocentric' : {'x' : hx, 'y' : hy, 'z' : hz},
 			'geocentric'   : {'x' : gx, 'y' : gy, 'z' : gz},
 			'topocentric'  : {'x' : tx, 'y' : ty, 'z' : tz},
-			'hourangle'    : ha
+			'hourangle'    : ha,
 		};
 		return res;
+	},
+	_lunarElongationPhaseAngleMagnitude : function(body, c, epoch, utc, geoLat, geoLon) {
+		var sun = this.orbitalElementsSun.data(epoch, utc, geoLat, geoLon);
+		var s = sun.coords;
+		var slon = Math.atan2(s.geocentric.y, s.geocentric.x);
+		var mlon = Math.atan2(c.geocentric.y, c.geocentric.x);
+		var mlat = Math.asin(c.geocentric.z / Math.sqrt( c.geocentric.x * c.geocentric.x + c.geocentric.y * c.geocentric.y  + c.geocentric.z * c.geocentric.z) );
+
+		var elong = Math.acos( Math.cos(slon - mlon) * Math.cos(mlat) );
+		var FV = Math.PI - elong;
+		var phase = ( 1.0 + Math.cos(FV) ) / 2.0;
+		var res = {
+			'elongation' : elong,
+			'phase'      : phase,
+			'magnitude'  : 0.0
+		};
+		return res;
+
+	},
+	_planetaryElongationPhaseAngleMagnitudeZero : function(body, coords, epoch) {
+		var res = {
+			'elongation' : 0.0,
+			'phase'      : 0.0,
+			'magnitude'  : 0.0
+		};
+		return res;
+	},
+	_planetaryElongationPhaseAngleMagnitude: function(body, c, epoch) {
+		var r = Math.sqrt(c.heliocentric.x * c.heliocentric.x + c.heliocentric.y * c.heliocentric.y + c.heliocentric.z * c.heliocentric.z);
+		var R = Math.sqrt(c.geocentric.x   * c.geocentric.x   + c.geocentric.y   * c.geocentric.y   + c.geocentric.z   * c.geocentric.z);
+		var s = this._solarDistanceFromEarth(epoch);
+
+		var elong = Math.acos( ( s*s + R*R - r*r ) / (2*s*R) );
+		var FV    = Math.acos( ( r*r + R*R - s*s ) / (2*r*R) );
+		var mag   = body.magnitude(r, R, FV);
+		var phase = ( 1.0 + Math.cos(FV) ) / 2.0;
+		var res   = {
+			'elongation' : elong,
+			'phase'      : phase,
+			'magnitude'  : mag
+		};
+		return res;
+	},
+	_solarDistanceFromEarth : function(epoch){
+		var body = this.orbitalElementsSun;
+		var a = body.semiMajorAxis(epoch);
+		var e = body.eccentricity(epoch);
+		var M = this._normalizeAngle(body.meanAnomaly(epoch));
+		var E = this._eccentricAnomaly(M, e);
+
+		var x = a * (Math.cos(E) - e);
+		var y = a * (Math.sin(E) * Math.sqrt(1.0 - e*e));
+		var r = Math.sqrt(x*x + y*y);
+		return r;
+
+
 	},
 	_planetaryPerturbationsMj : function(epoch) {
 		return this.orbitalElementsJupiter.meanAnomaly(epoch);

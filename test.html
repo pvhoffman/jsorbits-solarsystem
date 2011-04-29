@@ -22,10 +22,13 @@
                 var localLatitude  = $('#geo-location-latitude').val();
                 var localLongitude = $('#geo-location-longitude').val();
                 var d = new Date();
-
+                var e = solarSystemOrbits.epochFromDate(d);
+                var u= d.getUTCHours() + d.getUTCMinutes() / 60.0 + d.getUTCSeconds() / 3600.0;
                 for(element in elementsArray){
                     var select = '#' + elementsArray[element].id;
-                    var coords = elementsArray[element].coordinates(d, localLatitude, localLongitude);
+                    //var coords = elementsArray[element].coordinates(d, localLatitude, localLongitude);
+                    var data = elementsArray[element].data(e, u, localLatitude, localLongitude);
+                    var coords = data.coords;
 
                     // hour angle
                     var hms = toHoursMinutesSeconds(toDegrees(coords.hourangle));
