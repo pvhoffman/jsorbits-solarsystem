@@ -30,6 +30,7 @@
                     // hour angle
                     var hms = toHoursMinutesSeconds(toDegrees(coords.hourangle));
                     $(select + ' #hour-angle').html('Hour Angle: ' + hms.h + 'h ' + hms.m + 'm ' + hms.s + 's');
+                    //$(select + ' #hour-angle').html('Hour Angle: ' + toDegrees(coords.hourangle));
 
                     // heliocentric x,y,z
                     $(select + ' #heliocentric-coordinates #heliocentrix-x').html('x: ' + coords.heliocentric.x);
@@ -82,7 +83,7 @@
                     $(select + ' #topocentric-coordinates #topocentric-alt').html('Alt: ' + hms.d + ' ' + hms.m + '\' ' + hms.s + '\'\'');
 
                 }
-                setTimeout("updateStuff()", 1000);
+                //setTimeout("updateStuff()", 1000);
             }
 function toHoursMinutesSeconds(d){
     var hh = d / 15.0;
@@ -119,15 +120,6 @@ function truncate(f){
 }
 
 $(function(){
-        var d = new Date();
-        var barf =  solarSystemOrbits.orbitalElementsSun.coordinates(d, 33.49658, -117.08743);
-
-        var horz = toHorizontal(barf.topocentric.x, barf.topocentric.y, barf.topocentric.z);
-
-        var azm = toDegrees(horz.azimuth);
-        var alt = toDegrees(horz.altitude);
-
-        var s = 'Azimuth: ' + azm + ', Altitude: ' + alt;
 
         elementsArray = new Array();
         elementsArray.push(solarSystemOrbits.orbitalElementsMercury);
@@ -138,6 +130,7 @@ $(function(){
         elementsArray.push(solarSystemOrbits.orbitalElementsSaturn);
         elementsArray.push(solarSystemOrbits.orbitalElementsUranus);
         elementsArray.push(solarSystemOrbits.orbitalElementsNeptune);
+        elementsArray.push(solarSystemOrbits.orbitalElementsEarthMoon);
 
         for(element in elementsArray){
             var adiv = $(document.createElement('div')).attr('id', elementsArray[element].id); 
@@ -198,10 +191,16 @@ $(function(){
         </head>
         <body>
             <label for="geo-location-latitude">Local Latitude</label>
+<!--
             <input type="text" id="geo-location-latitude" value="33.49658"></input>
+-->
+            <input type="text" id="geo-location-latitude" value="33.5"></input>
 
             <label for="geo-location-longitude">Local Longitude</label>
+<!--
             <input type="text" id="geo-location-longitude" value="-117.08743"></input>
+-->
+            <input type="text" id="geo-location-longitude" value="-117.09"></input>
             <div id="content"></div>
         </body>
     </html>
