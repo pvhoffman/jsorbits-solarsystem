@@ -64,34 +64,6 @@ var solarSystemOrbits = {
 		}
 		return {'r' : r, 'ra' : ra, 'decl' : decl};
 	},
-	degreesToDegreesMinutesSeconds : function(degrees) {
-		var b = degrees;
-
-		var d = this._truncate(degrees);
-
-		var b1 = (b - d) * 60.0;
-
-		var m = this._truncate(b1);
-
-		var s = (b1 - m) * 60;
-
-		var res = {degrees : d, minutes : m, seconds : s};
-
-		return res;
-	},
-	degreesToHoursMinutesSeconds : function(degrees) {
-		var b = degrees / 15.0;
-		var h = this._truncate(b);
-
-		var b1 = (b - h) * 60.0;
-		var m = this._truncate(b1);
-
-		var s = (b1 - m) * 60.0;
-
-		var res = {hours : h, minutes : m, seconds : s};
-
-		return res;
-	},
 	epochFromDate : function(date) {
 		var Y = date.getFullYear();
 		var M = date.getMonth() + 1;
@@ -105,7 +77,7 @@ var solarSystemOrbits = {
 		return d;
 	},
 	orbitalElementsMercury : {
-		id : 'Mercury',
+		id : 'mercury',
 		longitudeOfAscendingNode : function(epoch) {
 			return 0.84354031676913532 + 5.6651118591708344e-07 * epoch;
 		},
@@ -143,27 +115,19 @@ var solarSystemOrbits = {
 			var res  = -0.36 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.027 * FV + 2.2E-13 * Math.pow(FV, 6);
 			return res;
 		},
-		coordinates : function(date, geoLat, geoLon) {
-			var self = solarSystemOrbits;
-			var epoch = self.epochFromDate(date);
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
-		},
 		data : function(epoch, utchours, geoLat, geoLon) {
 			var self = solarSystemOrbits;
-			//var epoch    = self.epochFromDate(date);
-			//var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
 			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
 			var res = {
-				'coords' : c,
-				'info'   : e
+				'c' : c,
+				'e' : e
 			};
 			return res;
 		}
 	},
 	orbitalElementsVenus : {
-		id : 'Venus',
+		id : 'venus',
 		longitudeOfAscendingNode : function(epoch) {
 			return 1.33832 + 4.30381e-07 * epoch;
 		},
@@ -200,27 +164,19 @@ var solarSystemOrbits = {
 			var res = -4.34 + 5 * (Math.log(r*R) / Math.LN10) + 0.013 * FV + 4.2E-7  * Math.pow(FV, 3);
 			return res;
 		},
-		coordinates : function(date, geoLat, geoLon) {
-			var self = solarSystemOrbits;
-			var epoch = self.epochFromDate(date);
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
-		},
 		data : function(epoch, utchours, geoLat, geoLon) {
 			var self = solarSystemOrbits;
-			//var epoch    = self.epochFromDate(date);
-			//var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
 			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
 			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
 			var res = {
-				'coords' : c,
-				'info'   : e
+				'c' : c,
+				'e' : e
 			};
 			return res;
 		}
 	},
 	orbitalElementsSun : {
-		id : 'Sun',
+		id : 'sun',
 		longitudeOfAscendingNode : function(epoch) {
 			return 0.0;
 		},
@@ -254,12 +210,6 @@ var solarSystemOrbits = {
 		},
 		magnitude : function(r, R, FV) {
 			return 0.0;
-		},
-		coordinates : function(date, geoLat, geoLon) {
-			var self = solarSystemOrbits;
-			var epoch = self.epochFromDate(date);
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
 		},
 		data : function(epoch, utchours, geoLat, geoLon) {
 			var self = solarSystemOrbits;
@@ -339,15 +289,15 @@ var solarSystemOrbits = {
 			};
 			var e = self._planetaryElongationPhaseAngleMagnitudeZero(c, epoch);
 			var res = {
-				'coords' : c,
-				'info'   : e
+				'c' : c,
+				'e' : e
 			};
 			return res;
 
 		}
 	},
 	orbitalElementsMars : {
-		id : 'Mars',
+		id : 'mars',
 		longitudeOfAscendingNode : function(epoch) {
 			return 0.86494 + 3.68406e-07 * epoch;
 		},
@@ -384,25 +334,19 @@ var solarSystemOrbits = {
 			var res = -1.51 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.016 * FV;
 			return res;
 		},
-		coordinates : function(date, geoLat, geoLon) {
-			var self = solarSystemOrbits;
-			var epoch = self.epochFromDate(date);
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
-		},
 		data : function(epoch, utchours, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
 			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
 			var res = {
-				'coords' : c,
-				'info'   : e
+				'c' : c,
+				'e' : e
 			};
 			return res;
 		}
 	},
 	orbitalElementsJupiter : {
-		id : 'Jupiter',
+		id : 'jupiter',
 		longitudeOfAscendingNode : function(epoch) {
 			return 1.75326 + 4.83201e-07 * epoch;
 		},
@@ -450,25 +394,19 @@ var solarSystemOrbits = {
 			var res = -9.25 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.014 * FV;
 			return res;
 		},
-		coordinates : function(date, geoLat, geoLon) {
-			var self = solarSystemOrbits;
-			var epoch = self.epochFromDate(date);
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
-		},
 		data : function(epoch, utchours, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
 			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
 			var res = {
-				'coords' : c,
-				'info'   : e
+				'c' : c,
+				'e' : e
 			};
 			return res;
 		}
 	},
 	orbitalElementsSaturn : {
-		id : 'Saturn',
+		id : 'saturn',
 		longitudeOfAscendingNode : function(epoch) {
 			return 1.9838 + 4.17099e-07 * epoch;
 		},
@@ -522,26 +460,20 @@ var solarSystemOrbits = {
 			var res = -9.0  + 5.0 *(Math.log(r*R) / Math.LN10) + 0.044 * FV + ring_magn;
 			return res;
 		},
-		coordinates : function(date, geoLat, geoLon) {
-			var self = solarSystemOrbits;
-			var epoch = self.epochFromDate(date);
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
-		},
 		data : function(epoch, utchours, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
 			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
 			var res = {
-				'coords' : c,
-				'info'   : e
+				'c' : c,
+				'e' : e
 			};
 			return res;
 		}
 
 	},
 	orbitalElementsUranus : {
-		id : 'Uranus',
+		id : 'uranus',
 		longitudeOfAscendingNode : function(epoch) {
 			return 1.29155 + 2.43962e-07 * epoch;
 		},
@@ -586,25 +518,19 @@ var solarSystemOrbits = {
 			var res = -7.15 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.001 * FV;
 			return res;
 		},
-		coordinates : function(date, geoLat, geoLon) {
-			var self = solarSystemOrbits;
-			var epoch = self.epochFromDate(date);
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
-		},
 		data : function(epoch, utchours, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
 			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
 			var res = {
-				'coords' : c,
-				'info'   : e
+				'c' : c,
+				'e' : e
 			};
 			return res;
 		}
 	},
 	orbitalElementsNeptune : {
-		id : 'Neptune',
+		id : 'neptune',
 		longitudeOfAscendingNode : function(epoch) {
 			return 2.30001 + 5.26618e-07 * epoch;
 		},
@@ -641,25 +567,19 @@ var solarSystemOrbits = {
 			var res = -6.90 + 5.0 * (Math.log(r*R) / Math.LN10) + 0.001 * FV;
 			return res;
 		},
-		coordinates : function(date, geoLat, geoLon) {
-			var self = solarSystemOrbits;
-			var epoch = self.epochFromDate(date);
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
-		},
 		data : function(epoch, utchours, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var c = self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
 			var e = self._planetaryElongationPhaseAngleMagnitude(this, c, epoch);
 			var res = {
-				'coords' : c,
-				'info'   : e
+				'c' : c,
+				'e'   : e
 			};
 			return res;
 		}
 	},
 	orbitalElementsEarthMoon : {
-		id : 'Moon-Earth',
+		id : 'moon-earth',
 		longitudeOfAscendingNode : function(epoch) {
 			return 2.183804829314361 - 0.0009242183063049012 * epoch;
 		},
@@ -780,15 +700,6 @@ var solarSystemOrbits = {
 		magnitude : function(r, R, FV) {
 			return 0.0;
 		},
-		coordinates : function(date, geoLat, geoLon) {
-			var self = solarSystemOrbits;
-			//var epoch = -3543;
-			var epoch = self.epochFromDate(date);
-			//var utchours = 0.0;
-			var utchours = date.getUTCHours() + date.getUTCMinutes() / 60.0 + date.getUTCSeconds() / 3600.0;
-			return self._planetaryCoordinates(epoch, this, geoLat, geoLon, utchours);
-			//return self._planetaryCoordinates(-3543.0, this, 60.0, 15.0, 0);
-		},
 		data : function(epoch, utchours, geoLat, geoLon) {
 			var self = solarSystemOrbits;
 			var N = self._normalizeAngle(this.longitudeOfAscendingNode(epoch));
@@ -867,8 +778,8 @@ var solarSystemOrbits = {
 			};
 			var e = self._lunarElongationPhaseAngleMagnitude(this, c, epoch);
 			var res = {
-				'coords' : c,
-				'info'   : e
+				'c' : c,
+				'e' : e
 			};
 			return res;
 
