@@ -832,9 +832,9 @@ var solarSystemOrbits = {
 
 		// now get the geocentric
 		var sun = this.orbitalElementsSun.data(epoch, utchours, geoLat, geoLon);
-		x = sun.coords.heliocentric.x + x;
-		y = sun.coords.heliocentric.y + y;
-		z = sun.coords.heliocentric.z + z;
+		x = sun.c.heliocentric.x + x;
+		y = sun.c.heliocentric.y + y;
+		z = sun.c.heliocentric.z + z;
 
 		var oblecl = 0.4090929593627069 - 6.218608124855796e-09 * epoch;
 
@@ -886,7 +886,7 @@ var solarSystemOrbits = {
 	},
 	_lunarElongationPhaseAngleMagnitude : function(body, c, epoch, utc, geoLat, geoLon) {
 		var sun = this.orbitalElementsSun.data(epoch, utc, geoLat, geoLon);
-		var s = sun.coords;
+		var s = sun.c;
 		var slon = Math.atan2(s.geocentric.y, s.geocentric.x);
 		var mlon = Math.atan2(c.geocentric.y, c.geocentric.x);
 		var mlat = Math.asin(c.geocentric.z / Math.sqrt( c.geocentric.x * c.geocentric.x + c.geocentric.y * c.geocentric.y  + c.geocentric.z * c.geocentric.z) );
