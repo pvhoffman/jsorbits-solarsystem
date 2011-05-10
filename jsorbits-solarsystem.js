@@ -897,7 +897,8 @@ var solarSystemOrbits = {
 		var res = {
 			'elongation' : elong,
 			'phase'      : phase,
-			'magnitude'  : 0.0
+			'magnitude'  : 0.0,
+                        'phaseangle' : FV
 		};
 		return res;
 
@@ -906,7 +907,8 @@ var solarSystemOrbits = {
 		var res = {
 			'elongation' : 0.0,
 			'phase'      : 0.0,
-			'magnitude'  : 0.0
+			'magnitude'  : 0.0,
+                        'phaseangle' : 0.0
 		};
 		return res;
 	},
@@ -922,7 +924,8 @@ var solarSystemOrbits = {
 		var res   = {
 			'elongation' : elong,
 			'phase'      : phase,
-			'magnitude'  : mag
+			'magnitude'  : mag,
+                        'phaseangle' : FV
 		};
 		return res;
 	},
