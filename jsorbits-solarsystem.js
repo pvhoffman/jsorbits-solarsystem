@@ -65,16 +65,16 @@ var solarSystemOrbits = {
 		return {'r' : r, 'ra' : ra, 'decl' : decl};
 	},
 	epochFromDate : function(date) {
-		var Y = date.getFullYear();
-		var M = date.getMonth() + 1;
-		var D = date.getDate();
-		var h = date.getHours();
-		var m = date.getMinutes();
-		var s = date.getSeconds();
-		var d = 367 * Y - this._truncate((7 * (Y + this._truncate(((M + 9) / 12)))) / 4) + this._truncate((275 * M) / 9) + D - 730530;
-		d = d + h / 24.0 + m / 1440.0 + s / 86400.0;
+                var y = date.getFullYear();
+                var m = date.getMonth() + 1;
+                var d = date.getDate();
+                var hh = date.getHours();
+                var mm = date.getMinutes();
+                var ss = date.getSeconds();
+                var jd = Math.floor(365.25*(y + 4716.0)) + Math.floor(30.6001*( m + 1.0)) + 2.0 - Math.floor(y/100.0) + Math.floor(Math.floor(y/100.0 )/4.0) + d - 1524.5 + (hh + mm / 60.0 + ss/3600.0)/24.0;
+                jd -= 2451543.5;
+                return jd;
 		//return -3543;
-		return d;
 	},
 	orbitalElementsMercury : {
 		id : 'mercury',
